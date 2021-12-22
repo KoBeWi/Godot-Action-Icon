@@ -17,6 +17,7 @@ export(FitMode) var fit_mode: int = 1 setget set_fit_mode
 
 var base_path: String
 var use_joypad: bool
+var pending_refresh: bool
 
 func _ready() -> void:
 	base_path = filename.get_base_dir()
@@ -46,6 +47,14 @@ func set_fit_mode(mode: int):
 	refresh()
 
 func refresh():
+	pending_refresh = true
+	call_deferred("_refresh")
+
+func _refresh():
+	if not pending_refresh:
+		return
+	pending_refresh = false
+	
 	if is_visible_in_tree():
 		if fit_mode != FitMode.NONE:
 			rect_min_size = Vector2()
