@@ -386,3 +386,7 @@ func _input(event: InputEvent) -> void:
 	elif not use_joypad and (event is InputEventJoypadButton or event is InputEventJoypadMotion):
 		use_joypad = true
 		refresh()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED and is_visible_in_tree():
+		refresh()
