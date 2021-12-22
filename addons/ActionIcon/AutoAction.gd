@@ -380,9 +380,9 @@ func _input(event: InputEvent) -> void:
 	if not is_visible_in_tree():
 		return
 	
-	if event is InputEventKey or event is InputEventMouseButton or event is InputEventMouseMotion:
+	if use_joypad and (event is InputEventKey or event is InputEventMouseButton or event is InputEventMouseMotion):
 		use_joypad = false
 		refresh()
-	elif event is InputEventJoypadButton or event is InputEventJoypadMotion:
+	elif not use_joypad and (event is InputEventJoypadButton or event is InputEventJoypadMotion):
 		use_joypad = true
 		refresh()
