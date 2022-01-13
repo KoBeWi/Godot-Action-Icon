@@ -12,6 +12,7 @@ enum FitMode {NONE, MATCH_WIDTH, MATCH_HEIGHT}
 
 export var action_name: String setget set_action_name
 export(JoypadMode) var joypad_mode: int = 0 setget set_joypad_mode
+export(String, "XBox", "DS4", "DS3", "Switch", "Snes") var joypad_model: String = "XBox" setget set_joypad_model
 export var favor_mouse: bool = true setget set_favor_mouse
 export(FitMode) var fit_mode: int = 1 setget set_fit_mode
 
@@ -36,6 +37,10 @@ func set_action_name(action: String):
 
 func set_joypad_mode(mode: int):
 	joypad_mode = mode
+	refresh()
+
+func set_joypad_model(model: String):
+	joypad_model = model
 	refresh()
 
 func set_favor_mouse(favor: bool):
@@ -373,7 +378,7 @@ func get_image(type: int, image: String) -> Texture:
 		MOUSE:
 			return load(base_path + "/Mouse/" + image + ".png") as Texture
 		JOYPAD:
-			return load(base_path + "/Joypad/" + image + ".png") as Texture
+			return load(base_path + "/Joypad/" + joypad_model+"/" + image + ".png") as Texture
 	return null
 
 func _input(event: InputEvent) -> void:
