@@ -13,6 +13,7 @@ It has a couple of display modes to configure:
 
 You can define a custom action, by going to `AutoAction.gd` script and editing the `CUSTOM_ACTIONS` constant. By default there is a "move" action that displays WSAD/Left Stick.
 
+- Joypad Model: model of the joypad to display. Supported are: Xbox, DualShock, Joy-Con. If set to auto, the script will try to auto-detect the controller based on joy name returned by Godot. You need to bind the action with some device to enable detection, "Any Device" option won't work. Fallbacks to Xbox if detection fails. All auto-model icons are refreshed when new device is connected, so icons will auto-update if joypad changes.
 - Favor Mouse: if an action has a keyboard and mouse button configured, `favor_mouse` set to true will display the mouse button
 - Fit Mode: Node = the icon will use whatever size you set. Match Width = the icon minimum width will match its height. Useful e.g. inside HBoxContainer. Match Height = same, but matches height to width.
 
