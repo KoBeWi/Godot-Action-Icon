@@ -22,8 +22,16 @@ var use_joypad: bool
 var pending_refresh: bool
 var cached_model: String
 
+func _init():
+	add_to_group("action_icons")
+	texture = load("res://addons/ActionIcon/Keyboard/Blank.png")
+	expand = true
+	stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
 func _ready() -> void:
 	base_path = filename.get_base_dir()
+	if base_path == "":
+		base_path = "res://addons/ActionIcon/"
 	use_joypad = not Input.get_connected_joypads().empty()
 	
 	if joypad_model == JoypadModel.AUTO:
