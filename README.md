@@ -22,3 +22,8 @@ You can define a custom action, by going to `ActionIcon.gd` script and editing t
 If you change your input mappings in-game, you can use `get_tree().call_group("input_actions", "refresh")` to refresh all visible icons to match the newly assigned input.
 
 You can customize the appearance of buttons by going to 'addons/ActionIcon` and relevant button folders. By default the Action Icon comes with keyboad, mouse and XBox buttons from [xelu's CC0 input icons pack](https://opengameart.org/content/free-keyboard-and-controllers-prompts-pack).
+
+___
+You can find all my addons on my [profile page](https://github.com/KoBeWi).
+
+<a href='https://ko-fi.com/W7W7AD4W4' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
