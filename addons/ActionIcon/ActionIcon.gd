@@ -9,7 +9,7 @@ const CUSTOM_ACTIONS = {
 enum {KEYBOARD, MOUSE, JOYPAD}
 enum JoypadMode {ADAPTIVE, FORCE_KEYBOARD, FORCE_JOYPAD}
 enum FitMode {NONE, MATCH_WIDTH, MATCH_HEIGHT}
-enum JoypadModel {AUTO, Xbox, Xbox360, DS3, DS4, DualSense, JOY_CON}
+enum JoypadModel {AUTO, Xbox, Xbox360, DS3, DS4, DualSense, Joy_Con}
 
 export var action_name: String setget set_action_name
 export(JoypadMode) var joypad_mode: int = 0 setget set_joypad_mode
