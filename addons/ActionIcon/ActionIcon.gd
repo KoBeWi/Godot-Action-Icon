@@ -9,7 +9,7 @@ const CUSTOM_ACTIONS = {
 enum {KEYBOARD, MOUSE, JOYPAD}
 enum JoypadMode {ADAPTIVE, FORCE_KEYBOARD, FORCE_JOYPAD}
 enum FitMode {NONE, MATCH_WIDTH, MATCH_HEIGHT}
-enum JoypadModel {AUTO, XBOX, DUALSHOCK, JOY_CON}
+enum JoypadModel {AUTO, Xbox, Xbox360, DS3, DS4, DualSense, JOY_CON}
 
 export var action_name: String setget set_action_name
 export(JoypadMode) var joypad_mode: int = 0 setget set_joypad_mode
@@ -313,14 +313,19 @@ func get_joypad_model(device: int) -> String:
 	var model := "Xbox"
 	if joypad_model == JoypadModel.AUTO and device >= 0:
 		var device_name := Input.get_joy_name(device)
-		if device_name.find("DualShock") > -1 or device_name.find("PlayStation") > -1:
-			model = "DualShock"
-		elif device_name.find("Joy-Con") > -1:
-			model = "Joy-Con"
-	elif joypad_model == JoypadModel.DUALSHOCK:
-		model = "DualShock"
-	elif joypad_model == JoypadModel.JOY_CON:
-		model = "Joy-Con"
+		if device_name.find("Xbox 360") > -1:
+			model = "Xbox360"
+		elif device_name.find("PS3") > -1:
+			model = "DS3"
+		elif device_name.find("PS4") > -1:
+			model = "DS4"
+		elif device_name.find("PS5") > -1:
+			model = "DualSense"
+		elif device_name.find("Joy-Con") > -1 or device_name.find("Joy Con") > -1:
+			model = "Joy_Con"
+	else:
+		model = JoypadModel.keys()[joypad_model]
+		print(model)
 	
 	cached_model = model
 	return model
