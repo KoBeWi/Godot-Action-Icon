@@ -325,7 +325,6 @@ func get_joypad_model(device: int) -> String:
 			model = "Joy_Con"
 	else:
 		model = JoypadModel.keys()[joypad_model]
-		print(model)
 	
 	cached_model = model
 	return model
