@@ -67,14 +67,11 @@ var _cached_model: String
 func _init():
 	add_to_group(&"action_icons")
 	texture = load("res://addons/ActionIcon/Keyboard/Blank.png")
-	ignore_texture_size = true
+	expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_base_path = get_script().resource_path.get_base_dir()
 
 func _ready() -> void:
-	_base_path = scene_file_path.get_base_dir()
-	if _base_path.is_empty():
-		_base_path = "res://addons/ActionIcon/"
-	
 	_use_joypad = not Input.get_connected_joypads().is_empty()
 	
 	if joypad_model == JoypadModel.AUTO:
@@ -85,7 +82,7 @@ func _ready() -> void:
 	if action_name == &"":
 		return
 	
-	assert(InputMap.has_action(action_name) or action_name in CUSTOM_ACTIONS) ## Commented-out due to Godot bug. ##, str("Action \"", action_name, "\" does not exist in the InputMap nor CUSTOM_ACTIONS."))
+	assert(InputMap.has_action(action_name) or action_name in CUSTOM_ACTIONS, str("Action \"", action_name, "\" does not exist in the InputMap nor CUSTOM_ACTIONS."))
 	
 	refresh()
 
@@ -468,4 +465,4 @@ func _input(event: InputEvent) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_VISIBILITY_CHANGED:
 		if is_visible_in_tree() and _pending_refresh:
-			refresh()
+			_refresh()
