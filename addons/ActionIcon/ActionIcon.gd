@@ -135,7 +135,10 @@ func _refresh():
 	
 	for event in InputMap.action_get_events(action_name):
 		if event is InputEventKey and keyboard == -1:
-			keyboard = event.keycode
+			if event.keycode == 0:
+				keyboard = event.physical_keycode
+			else:
+				keyboard = event.keycode
 		elif event is InputEventMouseButton and mouse == -1:
 			mouse = event.button_index
 		elif event is InputEventJoypadButton and joypad == -1:
