@@ -369,7 +369,7 @@ func get_joypad(button: int, device: int) -> Texture:
 			return get_image(JOYPAD, model + "L")
 		JOY_BUTTON_RIGHT_STICK:
 			return get_image(JOYPAD, model + "R")
-		JOY_BUTTON_GUIDE:
+		JOY_BUTTON_BACK, JOY_BUTTON_GUIDE:
 			return get_image(JOYPAD, model + "Select")
 		JOY_BUTTON_START:
 			return get_image(JOYPAD, model + "Start")
