@@ -6,10 +6,10 @@ const CUSTOM_ACTIONS = {
 	"move": "WSAD||LeftStick"
 }
 
-enum {KEYBOARD, MOUSE, JOYPAD}
-enum JoypadMode {ADAPTIVE, FORCE_KEYBOARD, FORCE_JOYPAD}
-enum FitMode {NONE, MATCH_WIDTH, MATCH_HEIGHT}
-enum JoypadModel {AUTO, XBOX, XBOX360, DS3, DS4, DUAL_SENSE, JOY_CON}
+enum { KEYBOARD, MOUSE, JOYPAD }
+enum JoypadMode { ADAPTIVE, FORCE_KEYBOARD, FORCE_JOYPAD }
+enum FitMode { CUSTOM, MATCH_WIDTH, MATCH_HEIGHT }
+enum JoypadModel { AUTO, XBOX, XBOX360, DS3, DS4, DUAL_SENSE, JOY_CON }
 
 const MODEL_MAP = {
 	JoypadModel.XBOX: "Xbox",
@@ -23,12 +23,18 @@ const MODEL_MAP = {
 ## Action name from InputMap or CUSTOM_ACTIONS.
 @export var action_name: StringName = &"":
 	set(action):
+		if action == action_name:
+			return
+		
 		action_name = action
 		refresh()
 
 ## Whether a joypad button should be used or keyboard/mouse.
 @export var joypad_mode: JoypadMode = JoypadMode.ADAPTIVE:
 	set(mode):
+		if mode == joypad_mode:
+			return
+		
 		joypad_mode = mode
 		set_process_input(mode == JoypadMode.ADAPTIVE)
 		refresh()
@@ -36,6 +42,9 @@ const MODEL_MAP = {
 ## Controller model for the displayed icon.
 @export var joypad_model: JoypadModel = JoypadModel.AUTO:
 	set(model):
+		if model == joypad_model:
+			return
+		
 		joypad_model = model
 		if model == JoypadModel.AUTO:
 			if not Input.joy_connection_changed.is_connected(on_joy_connection_changed):
@@ -44,20 +53,32 @@ const MODEL_MAP = {
 			if Input.joy_connection_changed.is_connected(on_joy_connection_changed):
 				Input.joy_connection_changed.disconnect(on_joy_connection_changed)
 		
-		_cached_model = ""
+			_cached_model = ""
 		refresh()
 
 ## If using keyboard/mouse icon, this makes mouse preferred if available.
 @export var favor_mouse: bool = true:
 	set(favor):
+		if favor == favor_mouse:
+			return
+		
 		favor_mouse = favor
 		refresh()
 
 ## Use to control the size of icon inside a container.
 @export var fit_mode: FitMode = FitMode.MATCH_WIDTH:
 	set(mode):
+		if mode == fit_mode:
+			return
+		
 		fit_mode = mode
-		refresh()
+		match fit_mode:
+			FitMode.MATCH_WIDTH:
+				expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+				stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			FitMode.MATCH_HEIGHT:
+				expand_mode = TextureRect.EXPAND_FIT_HEIGHT_PROPORTIONAL
+				stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 
 var _base_path: String
 var _use_joypad: bool
@@ -67,8 +88,6 @@ var _cached_model: String
 func _init():
 	add_to_group(&"action_icons")
 	texture = load("res://addons/ActionIcon/Keyboard/Blank.png")
-	expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_base_path = get_script().resource_path.get_base_dir()
 
 func _ready() -> void:
@@ -99,15 +118,6 @@ func _refresh():
 		return
 	
 	_pending_refresh = false
-	
-	if fit_mode != FitMode.NONE:
-		custom_minimum_size = Vector2()
-	
-	if fit_mode == FitMode.MATCH_WIDTH:
-		custom_minimum_size.x = size.y
-	elif fit_mode == FitMode.MATCH_HEIGHT:
-		custom_minimum_size.y = size.x
-	
 	var is_joypad := false
 	if joypad_mode == JoypadMode.FORCE_JOYPAD or (joypad_mode == JoypadMode.ADAPTIVE and _use_joypad):
 		is_joypad = true
@@ -117,8 +127,7 @@ func _refresh():
 		assert(image_list.size() >= 3, "Need more |")
 		
 		if is_joypad and not image_list[JOYPAD].is_empty():
-			var model := get_joypad_model(0) + "/"
-			texture = get_image(JOYPAD, model + image_list[JOYPAD])
+			texture = get_image(JOYPAD, "%s/%s" % [get_joypad_model(0), image_list[JOYPAD]])
 		elif not is_joypad:
 			if (favor_mouse or image_list[KEYBOARD].is_empty()) and not image_list[MOUSE].is_empty():
 				texture = get_image(MOUSE, image_list[MOUSE])
@@ -160,9 +169,9 @@ func _refresh():
 			texture = get_keyboard(keyboard)
 	
 	if not texture and action_name != &"":
-		push_error(str("No icon for action: ", action_name))
+		push_error("No icon for action: %s" % action_name)
 
-func get_keyboard(key: int) -> Texture:
+func get_keyboard(key: int) -> Texture2D:
 	match key:
 		KEY_0:
 			return get_image(KEYBOARD, "0")
@@ -349,7 +358,7 @@ func get_joypad_model(device: int) -> String:
 	_cached_model = model
 	return model
 
-func get_joypad(button: int, device: int) -> Texture:
+func get_joypad(button: int, device: int) -> Texture2D:
 	var model := get_joypad_model(device) + "/"
 	
 	match button:
@@ -381,9 +390,11 @@ func get_joypad(button: int, device: int) -> Texture:
 			return get_image(JOYPAD, model + "DPadLeft")
 		JOY_BUTTON_DPAD_RIGHT:
 			return get_image(JOYPAD, model + "DPadRight")
+		JOY_BUTTON_MISC1:
+			return get_image(JOYPAD, model + "Share")
 	return null
 
-func get_joypad_axis(axis: int, value: float, device: int) -> Texture:
+func get_joypad_axis(axis: int, value: float, device: int) -> Texture2D:
 	var model := get_joypad_model(device) + "/"
 	
 	match axis:
@@ -421,7 +432,7 @@ func get_joypad_axis(axis: int, value: float, device: int) -> Texture:
 			return get_image(JOYPAD, model + "RT")
 	return null
 
-func get_mouse(button: int) -> Texture:
+func get_mouse(button: int) -> Texture2D:
 	match button:
 		MOUSE_BUTTON_LEFT:
 			return get_image(MOUSE, "Left")
@@ -442,11 +453,11 @@ func get_mouse(button: int) -> Texture:
 func get_image(type: int, image: String) -> Texture2D:
 	match type:
 		KEYBOARD:
-			return load(_base_path + "/Keyboard/" + image + ".png") as Texture
+			return load(_base_path.path_join("Keyboard").path_join(image) + ".png") as Texture
 		MOUSE:
-			return load(_base_path + "/Mouse/" + image + ".png") as Texture
+			return load(_base_path.path_join("Mouse").path_join(image) + ".png") as Texture
 		JOYPAD:
-			return load(_base_path + "/Joypad/" + image + ".png") as Texture
+			return load(_base_path.path_join("Joypad").path_join(image) + ".png") as Texture
 	return null
 
 func on_joy_connection_changed(device: int, connected: bool):
