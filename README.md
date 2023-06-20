@@ -1,4 +1,4 @@
-# <img src="Icon.png" width="64" height="64"> Godot Action Icon
+# <img src="Media/Icon.png" width="64" height="64"> Godot Action Icon
 
 Action Icon is a TextureRect-based custom GUI node that you can put on a scene and it will display the associated action. Just activate the plugin and add ActionIcon to your scene. Note that in-editor preview is limited.
 
