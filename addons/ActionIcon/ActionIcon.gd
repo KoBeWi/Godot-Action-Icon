@@ -6,6 +6,8 @@ const CUSTOM_ACTIONS = {
 	"move": "WSAD||LeftStick"
 }
 
+const DEFAULT_TEXTURE = preload("res://addons/ActionIcon/Keyboard/Blank.png")
+
 enum { KEYBOARD, MOUSE, JOYPAD }
 enum JoypadMode { ADAPTIVE, FORCE_KEYBOARD, FORCE_JOYPAD }
 enum FitMode { CUSTOM, MATCH_WIDTH, MATCH_HEIGHT }
@@ -89,7 +91,7 @@ var _cached_model: String
 
 func _init():
 	add_to_group(&"action_icons")
-	texture = load("res://addons/ActionIcon/Keyboard/Blank.png")
+	texture = DEFAULT_TEXTURE
 	_base_path = get_script().resource_path.get_base_dir()
 
 func _ready() -> void:
@@ -103,7 +105,8 @@ func _ready() -> void:
 	if action_name == &"":
 		return
 	
-	assert(InputMap.has_action(action_name) or action_name in CUSTOM_ACTIONS, str("Action \"", action_name, "\" does not exist in the InputMap nor CUSTOM_ACTIONS."))
+	if not Engine.is_editor_hint():
+		assert(InputMap.has_action(action_name) or action_name in CUSTOM_ACTIONS, str("Action \"", action_name, "\" does not exist in the InputMap nor CUSTOM_ACTIONS."))
 	
 	refresh()
 
@@ -116,7 +119,7 @@ func refresh():
 	_refresh.call_deferred()
 
 func _refresh():
-	if Engine.is_editor_hint() or not is_visible_in_tree():
+	if not is_visible_in_tree():
 		return
 	
 	_pending_refresh = false
@@ -137,6 +140,11 @@ func _refresh():
 				texture = get_image(KEYBOARD, image_list[KEYBOARD])
 		return
 	
+	var events := action_get_events(action_name)
+	if events.is_empty():
+		texture = DEFAULT_TEXTURE
+		return
+	
 	var keyboard := -1
 	var mouse := -1
 	var joypad := -1
@@ -144,7 +152,7 @@ func _refresh():
 	var joypad_axis_value: float
 	var joypad_id: int
 	
-	for event in InputMap.action_get_events(action_name):
+	for event in events:
 		if event is InputEventKey and keyboard == -1:
 			if event.keycode == 0:
 				keyboard = event.physical_keycode
@@ -488,3 +496,15 @@ func _validate_property(property: Dictionary) -> void:
 		property.usage = 0
 	elif fit_mode != FitMode.CUSTOM and (property.name == "expand_mode" or property.name == "stretch_mode"):
 		property.usage = 0
+
+func action_get_events(action_name: StringName) -> Array[InputEvent]:
+	if Engine.is_editor_hint():
+		var setting := "input/" + action_name
+		var ret: Array[InputEvent]
+		if not ProjectSettings.has_setting(setting):
+			return ret
+		
+		ret.assign(ProjectSettings.get(setting)["events"])
+		return ret
+	else:
+		return InputMap.action_get_events(action_name)

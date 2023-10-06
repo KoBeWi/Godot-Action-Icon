@@ -9,7 +9,7 @@ It has a couple of display modes to configure:
 - Action Name: the name of the action from project's Input Map
 - Joypad Mode: whether the action should display keyboard key or joypad button. If set to "Adaptive", the icon will automatically change when it detects keyboard or joypad input. Only relevant to actions that have both assigned.
 
-![](ReadmeActions.gif)
+![](Media/ReadmeActions.gif)
 
 You can define a custom action, by going to `ActionIcon.gd` script and editing the `CUSTOM_ACTIONS` constant. By default there is a "move" action that displays WSAD/Left Stick. Some device sets include extra buttons that can be used for custom actions.
 
@@ -17,7 +17,12 @@ You can define a custom action, by going to `ActionIcon.gd` script and editing t
 - Favor Mouse: if an action has a keyboard and mouse button configured, `favor_mouse` set to true will display the mouse button
 - Fit Mode: Node = the icon will use whatever size you set. Match Width = the icon minimum width will match its height. Useful e.g. inside HBoxContainer. Match Height = same, but matches height to width. This property internally uses the built-in functionality of TextureRect. You can set it to Custom to set `expand_mode` and `stretch_mode` yourself.
 
-![](ReadmeSize.gif)
+![](Media/ReadmeSize.gif)
+
+NEW in 1.5: The icon show properly in the editor too.
+
+![](Media/ReadmeEditor.gif)
+
 
 If you change your input mappings in-game, you can use `get_tree().call_group(&"action_icons", &"refresh")` to refresh all visible icons to match the newly assigned input.
 
