@@ -79,6 +79,8 @@ const MODEL_MAP = {
 			FitMode.MATCH_HEIGHT:
 				expand_mode = TextureRect.EXPAND_FIT_HEIGHT_PROPORTIONAL
 				stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		
+		notify_property_list_changed()
 
 var _base_path: String
 var _use_joypad: bool
@@ -480,3 +482,9 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_VISIBILITY_CHANGED:
 		if is_visible_in_tree() and _pending_refresh:
 			_refresh()
+
+func _validate_property(property: Dictionary) -> void:
+	if property.name == "texture":
+		property.usage = 0
+	elif fit_mode != FitMode.CUSTOM and (property.name == "expand_mode" or property.name == "stretch_mode"):
+		property.usage = 0
