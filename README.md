@@ -1,6 +1,6 @@
 # <img src="Media/Icon.png" width="64" height="64"> Godot Action Icon
 
-Action Icon is a TextureRect-based custom GUI node that you can put on a scene and it will display the associated action. Just activate the plugin and add ActionIcon to your scene. Note that in-editor preview is limited.
+Action Icon is a TextureRect-based custom GUI node that you can put on a scene and it will display the associated action. Just activate the plugin and add ActionIcon to your scene.
 
 ![](Media/Screenshot1.png)
 
@@ -19,12 +19,11 @@ You can define a custom action, by going to `ActionIcon.gd` script and editing t
 
 ![](Media/ReadmeSize.gif)
 
-NEW in 1.5: The icon show properly in the editor too.
+NEW in 1.5: The icon shows properly in the editor too.
 
 ![](Media/ReadmeEditor.gif)
 
-
-If you change your input mappings in-game, you can use `get_tree().call_group(&"action_icons", &"refresh")` to refresh all visible icons to match the newly assigned input.
+If you change your input mappings in-game, you can use `ActionIcon.refresh_all()` to refresh all visible icons to match the newly assigned input.
 
 You can customize the appearance of buttons by going to 'addons/ActionIcon` and relevant button folders. By default the Action Icon comes with keyboad, mouse and joypad buttons from [xelu's CC0 input icons pack](https://opengameart.org/content/free-keyboard-and-controllers-prompts-pack).
 
