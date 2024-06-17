@@ -356,7 +356,7 @@ func _get_joypad_model(device: int) -> String:
 			model = "DS4"
 		elif device_name.contains("PS5"):
 			model = "DualSense"
-		elif device_name.contains("Joy-Con") or device_name.contains("Joy Con"):
+		elif device_name.contains("Joy-Con") or device_name.contains("Joy Con") or device_name.contains("Nintendo"):
 			model = "JoyCon"
 	else:
 		model = MODEL_MAP[joypad_model]
