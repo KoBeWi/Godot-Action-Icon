@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dhhcmm25ik1ey"
-path="res://.godot/imported/DpadDown.png-b826220c7a6b8530a21887aa96b2c2e8.ctex"
+uid="uid://05ad45sbnnr2"
+path="res://.godot/imported/DPad.png-657f0e40a75bd36da665ac479535e435.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Joypad/Xbox360/DpadDown.png"
-dest_files=["res://.godot/imported/DpadDown.png-b826220c7a6b8530a21887aa96b2c2e8.ctex"]
+source_file="res://addons/ActionIcon/Joypad/Xbox360/DPad.png"
+dest_files=["res://.godot/imported/DPad.png-657f0e40a75bd36da665ac479535e435.ctex"]
 
 [params]
 
