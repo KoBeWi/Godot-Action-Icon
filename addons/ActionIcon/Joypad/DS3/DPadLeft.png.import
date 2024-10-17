@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dd7hfxtx2ix14"
-path="res://.godot/imported/Dpad.png-1c961c6115f51ab5e1daa30330d17761.ctex"
+uid="uid://dkbqsn4jhoxjl"
+path="res://.godot/imported/DPadLeft.png-3a3f0f672d8ec3a2dcae01a8db1b0be0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Joypad/DS3/Dpad.png"
-dest_files=["res://.godot/imported/Dpad.png-1c961c6115f51ab5e1daa30330d17761.ctex"]
+source_file="res://addons/ActionIcon/Joypad/DS3/DPadLeft.png"
+dest_files=["res://.godot/imported/DPadLeft.png-3a3f0f672d8ec3a2dcae01a8db1b0be0.ctex"]
 
 [params]
 
