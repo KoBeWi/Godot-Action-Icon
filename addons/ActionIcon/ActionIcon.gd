@@ -111,7 +111,7 @@ func refresh():
 
 ## Calls [method refresh] on all ActionIcon nodes in the scene tree.
 static func refresh_all():
-	Engine.get_main_loop().call_group(GROUP_NAME, refresh.get_method())
+	Engine.get_main_loop().call_group(GROUP_NAME, &"refresh")
 
 func _refresh():
 	if not is_visible_in_tree():
