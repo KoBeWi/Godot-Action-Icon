@@ -9,6 +9,7 @@ const CUSTOM_ACTIONS = {
 
 const GROUP_NAME = &"action_icons"
 const DEFAULT_TEXTURE = preload("res://addons/ActionIcon/Keyboard/Blank.png")
+const BASE_PATH: String = "res://addons/ActionIcon"
 
 enum { KEYBOARD, MOUSE, JOYPAD }
 enum JoypadMode { ADAPTIVE, FORCE_KEYBOARD, FORCE_JOYPAD }
@@ -87,7 +88,6 @@ const MODEL_MAP = {
 		
 		notify_property_list_changed()
 
-static var _base_path: String
 static var _use_joypad: bool
 
 var _pending_refresh: bool = true
@@ -100,9 +100,6 @@ static func _static_init() -> void:
 func _init():
 	add_to_group(GROUP_NAME)
 	texture = DEFAULT_TEXTURE
-	
-	if _base_path.is_empty():
-		_base_path = get_script().resource_path.get_base_dir()
 
 ## Forces icon refresh. Useful when you change controls.
 func refresh():
@@ -114,7 +111,7 @@ func refresh():
 
 ## Calls [method refresh] on all ActionIcon nodes in the scene tree.
 static func refresh_all():
-	Engine.get_main_loop().call_group(GROUP_NAME, refresh.get_method())
+	Engine.get_main_loop().call_group(GROUP_NAME, &"refresh")
 
 func _refresh():
 	if not is_visible_in_tree():
@@ -459,11 +456,11 @@ func _get_mouse(button: int) -> Texture2D:
 func _get_image(type: int, image: String) -> Texture2D:
 	match type:
 		KEYBOARD:
-			return load(_base_path.path_join("Keyboard").path_join(image) + ".png") as Texture
+			return load(BASE_PATH.path_join("Keyboard").path_join(image) + ".png") as Texture
 		MOUSE:
-			return load(_base_path.path_join("Mouse").path_join(image) + ".png") as Texture
+			return load(BASE_PATH.path_join("Mouse").path_join(image) + ".png") as Texture
 		JOYPAD:
-			return load(_base_path.path_join("Joypad").path_join(image) + ".png") as Texture
+			return load(BASE_PATH.path_join("Joypad").path_join(image) + ".png") as Texture
 	return null
 
 func _on_joy_connection_changed(device: int, connected: bool):
