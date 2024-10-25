@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dkbqsn4jhoxjl"
-path="res://.godot/imported/DPadLeft.png-3a3f0f672d8ec3a2dcae01a8db1b0be0.ctex"
+path="res://.godot/imported/DPadLeft.png-8790b209487f9a65e8509bf8af1b0a2f.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://addons/ActionIcon/Joypad/DS3/DPadLeft.png"
-dest_files=["res://.godot/imported/DPadLeft.png-3a3f0f672d8ec3a2dcae01a8db1b0be0.ctex"]
+dest_files=["res://.godot/imported/DPadLeft.png-8790b209487f9a65e8509bf8af1b0a2f.ctex"]
 
 [params]
 

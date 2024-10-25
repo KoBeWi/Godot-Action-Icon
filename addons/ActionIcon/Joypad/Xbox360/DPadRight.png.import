@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bawn0qsqq6a8n"
-path="res://.godot/imported/DPadRight.png-ba2aee6182e55fa9c78786c1507ffa96.ctex"
+path="res://.godot/imported/DPadRight.png-e6f21e8d5aa35f7c4d42bb081a41b449.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://addons/ActionIcon/Joypad/Xbox360/DPadRight.png"
-dest_files=["res://.godot/imported/DPadRight.png-ba2aee6182e55fa9c78786c1507ffa96.ctex"]
+dest_files=["res://.godot/imported/DPadRight.png-e6f21e8d5aa35f7c4d42bb081a41b449.ctex"]
 
 [params]
 
