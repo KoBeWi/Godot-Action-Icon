@@ -13,9 +13,6 @@ var main_dir: DirAccess
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
-		if is_part_of_edited_scene():
-			return
-		
 		main_dir = DirAccess.open("res://addons/ActionIcon/Generator/Blueprints")
 		
 		dialog = %Dialog
@@ -38,10 +35,20 @@ func show():
 				kblueprint.font_color = Color(config.get_value("info", "font_color"))
 				kblueprint.font_size = config.get_value("info", "font_size")
 				
-				for texname in config.get_section_keys("keys"):
+				var maplist: PackedStringArray
+				var keycfg := config
+				
+				if config.has_section_key("keys", "copy"):
+					keycfg = ConfigFile.new()
+					keycfg.load(full_dir.path_join("..").path_join(config.get_value("keys", "copy")).path_join("Mapping.cfg"))
+					maplist = keycfg.get_section_keys("keys")
+				else:
+					maplist = config.get_section_keys("keys")
+				
+				for texname in maplist:
 					var texture: Texture2D = load(full_dir.path_join(texname))
 					
-					var mapping_data: Dictionary = config.get_value("keys", texname)
+					var mapping_data: Dictionary = keycfg.get_value("keys", texname)
 					for mapping_name: String in mapping_data:
 						var mapping := KeyboardBlueprint.KeyMapping.new()
 						mapping.base = texture
@@ -52,9 +59,13 @@ func show():
 						elif mapping_value is String:
 							mapping.text = mapping_value
 						elif mapping_value is Dictionary:
-							mapping.text = mapping_value.get("text", "")
-							mapping.text_offset = mapping_value.get("text_offset", Vector2())
-							mapping.font_size = mapping_value.get("font_size", 0)
+							mapping.text = mapping_value.get("text", mapping.text)
+							mapping.text_offset = mapping_value.get("text_offset", mapping.text_offset)
+							mapping.font_size = mapping_value.get("font_size", mapping.font_size)
+							mapping.font_color = mapping_value.get("font_color", mapping.font_color)
+							
+							if mapping_value.has("font"):
+								mapping.font = load(full_dir.path_join(mapping["font"]))
 							
 							var image_name: String = mapping_value.get("image", "")
 							if not image_name.is_empty():
@@ -90,7 +101,7 @@ func _confirm_generate() -> void:
 			var image := images[i]
 			sheet.blit_rect(image, Rect2(Vector2i(), image.get_size()), Vector2i(i % 10 * viewport.size.x, i / 10 * viewport.size.y))
 		
-		sheet.save_png("res://Test/sheet.png")
+		sheet.save_png("res://Test/%s.png" % blueprint.name)
 
 class Blueprint:
 	enum Type { KEYBOARD, MOUSE, JOYPAD }
@@ -111,7 +122,9 @@ class KeyboardBlueprint extends Blueprint:
 		var base: Texture2D
 		var text: String
 		var text_offset: Vector2
+		var font: Font
 		var font_size: int
+		var font_color := Color.TRANSPARENT
 		var image: Texture2D
 	
 	var font: Font
@@ -125,12 +138,10 @@ class KeyboardBlueprint extends Blueprint:
 	func generate() -> Array[Image]:
 		var images: Array[Image]
 		
-		text_generator.add_theme_font_override(&"font", font)
-		text_generator.add_theme_color_override(&"font_color", font_color)
-		
 		for key in mappings:
-			var fs := key.font_size if key.font_size != 0 else font_size
-			text_generator.add_theme_font_size_override(&"font_size", fs)
+			text_generator.add_theme_font_size_override(&"font_size", key.font_size if key.font_size != 0 else font_size)
+			text_generator.add_theme_font_override(&"font", key.font if key.font else font)
+			text_generator.add_theme_color_override(&"font_color", key.font_color if key.font_color.a > 0 else font_color)
 			
 			images.append(await generate_key(key))
 		
@@ -143,9 +154,7 @@ class KeyboardBlueprint extends Blueprint:
 		text_generator.size = viewport.size
 		overlay_generator.texture = mapping.image
 		
-		viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
-		await RenderingServer.frame_post_draw
-		return viewport.get_texture().get_image()
+		return await viewport.print_image()
 
 class MouseBlueprint extends Blueprint:
 	func _init() -> void:

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://2m6to2i3efr8"
-path="res://.godot/imported/Windows.png-f7b5913aeead60a7025bf27878e532e5.ctex"
+uid="uid://b11rlo1nsge2c"
+path="res://.godot/imported/Tall.png-9953aa388473d58f2fda44904890ebf0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Generator/Blueprints/Keyboard/Windows.png"
-dest_files=["res://.godot/imported/Windows.png-f7b5913aeead60a7025bf27878e532e5.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/KeyboardDark/Tall.png"
+dest_files=["res://.godot/imported/Tall.png-9953aa388473d58f2fda44904890ebf0.ctex"]
 
 [params]
 

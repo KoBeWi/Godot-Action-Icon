@@ -153,8 +153,7 @@ func refresh():
 
 ## Calls [method refresh] on all ActionIcon nodes in the scene tree.
 static func refresh_all():
-	#Engine.get_main_loop().call_group(GROUP_NAME, refresh.get_method())
-	Engine.get_main_loop().call_group(GROUP_NAME, &"refresh") ####
+	Engine.get_main_loop().call_group(GROUP_NAME, &"refresh")
 
 ## Forces re-cache of icons for custom actions. Calls _create_icon_cache() in the custom actions script.
 static func reload_custom_actions():

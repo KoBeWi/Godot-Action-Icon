@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dy0yer51fqiwg"
-path="res://.godot/imported/SuperWide.png-4a33859fe4312eb92b6f86e59376b425.ctex"
+uid="uid://ctw374yqm183h"
+path="res://.godot/imported/Wide.png-8ba0b525ed181a7726f599fe6fe92a84.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Generator/Blueprints/Keyboard/SuperWide.png"
-dest_files=["res://.godot/imported/SuperWide.png-4a33859fe4312eb92b6f86e59376b425.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/KeyboardLight/Wide.png"
+dest_files=["res://.godot/imported/Wide.png-8ba0b525ed181a7726f599fe6fe92a84.ctex"]
 
 [params]
 

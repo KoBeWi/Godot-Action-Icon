@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://chibgd8r220yn"
-path="res://.godot/imported/Normal.png-4c832658daf1247924c7f632bf6361b4.ctex"
+uid="uid://c3b4oe5baa1ep"
+path="res://.godot/imported/Enter.png-371a05a80cf4a02022741b524e7cf3f5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Generator/Blueprints/Keyboard/Normal.png"
-dest_files=["res://.godot/imported/Normal.png-4c832658daf1247924c7f632bf6361b4.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/KeyboardDark/Enter.png"
+dest_files=["res://.godot/imported/Enter.png-371a05a80cf4a02022741b524e7cf3f5.ctex"]
 
 [params]
 

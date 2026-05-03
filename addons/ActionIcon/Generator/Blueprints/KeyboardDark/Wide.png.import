@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b7dfx2ndeokl4"
-path="res://.godot/imported/Wide.png-49b6ec859f8fdc8845e13616cd1ee786.ctex"
+path="res://.godot/imported/Wide.png-d0d812018e2e268abb10f609f8e7be91.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Generator/Blueprints/Keyboard/Wide.png"
-dest_files=["res://.godot/imported/Wide.png-49b6ec859f8fdc8845e13616cd1ee786.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/KeyboardDark/Wide.png"
+dest_files=["res://.godot/imported/Wide.png-d0d812018e2e268abb10f609f8e7be91.ctex"]
 
 [params]
 
