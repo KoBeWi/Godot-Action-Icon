@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c4ckv3ryprcn4"
-path="res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"
+uid="uid://1ruyv45qkwat"
+path="res://.godot/imported/L1.png-4a60e30ea213a8b28dbb2830db7ac2cf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Icon.png"
-dest_files=["res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/JoypadDualSense/L1.png"
+dest_files=["res://.godot/imported/L1.png-4a60e30ea213a8b28dbb2830db7ac2cf.ctex"]
 
 [params]
 

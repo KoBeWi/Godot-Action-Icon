@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c4ckv3ryprcn4"
-path="res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"
+uid="uid://c53fdbhhye4vn"
+path="res://.godot/imported/RightStick.png-063a64d2c5595972c7a7d74e9d6ddeb8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Icon.png"
-dest_files=["res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/JoypadXbox/RightStick.png"
+dest_files=["res://.godot/imported/RightStick.png-063a64d2c5595972c7a7d74e9d6ddeb8.ctex"]
 
 [params]
 

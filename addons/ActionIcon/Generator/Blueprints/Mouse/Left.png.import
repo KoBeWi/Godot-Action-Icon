@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c4ckv3ryprcn4"
-path="res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"
+uid="uid://bw3ch3gad7kny"
+path="res://.godot/imported/Left.png-1bc4d162f1721c7845b69f7994297be1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Icon.png"
-dest_files=["res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/Mouse/Left.png"
+dest_files=["res://.godot/imported/Left.png-1bc4d162f1721c7845b69f7994297be1.ctex"]
 
 [params]
 

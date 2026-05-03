@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c4ckv3ryprcn4"
-path="res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"
+uid="uid://dgscotktnpni6"
+path="res://.godot/imported/Cross.png-c3d7ea95e158b8e843aee747d46620f0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Icon.png"
-dest_files=["res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/JoypadDS3/Cross.png"
+dest_files=["res://.godot/imported/Cross.png-c3d7ea95e158b8e843aee747d46620f0.ctex"]
 
 [params]
 

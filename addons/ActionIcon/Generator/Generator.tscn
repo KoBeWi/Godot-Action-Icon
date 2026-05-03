@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://dymwlqo6l32a5"]
+
+[ext_resource type="Script" uid="uid://bjxkwdwy770bi" path="res://addons/ActionIcon/Generator/Generator.gd" id="1_heum6"]
+
+[node name="Generator" type="Node" unique_id=1168105251]
+script = ExtResource("1_heum6")
+
+[node name="Dialog" type="ConfirmationDialog" parent="." unique_id=2141239065]
+unique_name_in_owner = true
+oversampling_override = 1.0
+title = "Generate Icon Set"
+position = Vector2i(0, 36)
+size = Vector2i(800, 600)
+visible = true
+ok_button_text = "Generate"
+
+[node name="Viewport" type="SubViewport" parent="." unique_id=540985589]
+unique_name_in_owner = true
+transparent_bg = true
+size = Vector2i(100, 100)
+
+[node name="BaseGenerator" type="TextureRect" parent="Viewport" unique_id=472175003]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextGenerator" type="Label" parent="Viewport" unique_id=870428169]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/line_spacing = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="OverlayGenerator" type="TextureRect" parent="Viewport" unique_id=1436460410]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch_mode = 3
+
+[connection signal="confirmed" from="Dialog" to="." method="_confirm_generate"]

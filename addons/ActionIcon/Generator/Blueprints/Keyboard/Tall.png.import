@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c4ckv3ryprcn4"
-path="res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"
+uid="uid://b11rlo1nsge2c"
+path="res://.godot/imported/Tall.png-9735fd01f84b97b1753232e64d834bc6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Icon.png"
-dest_files=["res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/Keyboard/Tall.png"
+dest_files=["res://.godot/imported/Tall.png-9735fd01f84b97b1753232e64d834bc6.ctex"]
 
 [params]
 

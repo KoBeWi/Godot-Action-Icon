@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c4ckv3ryprcn4"
-path="res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"
+uid="uid://ctp6g1vntv5ha"
+path="res://.godot/imported/Triangle.png-88a162d453627b9189a19f09648627fa.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Icon.png"
-dest_files=["res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/JoypadDualSense/Triangle.png"
+dest_files=["res://.godot/imported/Triangle.png-88a162d453627b9189a19f09648627fa.ctex"]
 
 [params]
 

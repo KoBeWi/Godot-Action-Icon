@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c4ckv3ryprcn4"
-path="res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"
+uid="uid://dc37x685335bm"
+path="res://.godot/imported/RT.png-30a9eae252d5db37bb93c6559506bde5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Icon.png"
-dest_files=["res://.godot/imported/Icon.png-bbb934fd1ff12b06bc664c337c10637a.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/JoypadXbox360/RT.png"
+dest_files=["res://.godot/imported/RT.png-30a9eae252d5db37bb93c6559506bde5.ctex"]
 
 [params]
 
