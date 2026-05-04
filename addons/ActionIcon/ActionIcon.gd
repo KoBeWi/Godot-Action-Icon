@@ -78,17 +78,12 @@ enum FitMode { CUSTOM, MATCH_WIDTH, MATCH_HEIGHT }
 		
 		notify_property_list_changed()
 
-@export var editor_reload_data: bool:
-	set(erm):
-		if not erm:
-			return
-		
-		_model_list.clear()
-		_icon_sets.clear()
-		_custom_actions = null
-		
-		initialize_data()
-		refresh_all()
+@export_tool_button("Reload Data", "ReloadSmall") var editor_reload_data = func():
+	_joypad_sets.clear()
+	_custom_actions = null
+	
+	initialize_data()
+	refresh_all()
 
 static var _base_size: Vector2
 static var _default_joypad: String
@@ -97,10 +92,7 @@ static var _use_joypad: bool
 static var _keyboard_set: IconSet
 static var _mouse_set: IconSet
 static var _joypad_sets: Dictionary[String, IconSet]
-
-static var _icon_sets: Dictionary[String, Dictionary]
 static var _custom_actions: RefCounted
-static var _model_list: Array[String]
 
 var _pending_refresh: bool = true
 var _fit_initialized: bool
@@ -111,7 +103,6 @@ static func _static_init() -> void:
 	
 	var cfg := ConfigFile.new()
 	cfg.load(set_cache_path.path_join("Config.cfg"))
-	_base_size = cfg.get_value("config", "base_size")
 	_default_joypad = cfg.get_value("config", "default_joypad")
 	if cfg.get_value("config", "load_automatically"):
 		initialize_data()
@@ -124,6 +115,7 @@ static func initialize_data():
 	
 	var cfg := ConfigFile.new()
 	cfg.load(set_cache_path.path_join("Config.cfg"))
+	_base_size = cfg.get_value("config", "base_size")
 	
 	var set_list: PackedStringArray = cfg.get_value("config", "set_list")
 	
@@ -156,7 +148,7 @@ func _init():
 	add_to_group(GROUP_NAME)
 	texture = _DEFAULT_TEXTURE
 	
-	if Engine.is_editor_hint() and _icon_sets.is_empty():
+	if Engine.is_editor_hint() and not _keyboard_set:
 		initialize_data()
 
 ## Forces icon refresh. Useful when you change controls.
@@ -239,26 +231,26 @@ func _get_joypad_model(device: int) -> String:
 	var device_name := Input.get_joy_name(maxi(device, 0))
 	var model := _default_joypad
 	
-	for icon_set in _icon_sets:
-		var found: bool
-		var set_data: Dictionary = _icon_sets[icon_set]
-		
-		if set_data["type"] == "joypad":
-			for pattern in set_data["joypad_model"]:
-				if device_name.contains(pattern):
-					model = icon_set
-					found = true
-					break
-		
-		if found:
-			break
+	#for icon_set in _icon_sets:
+		#var found: bool
+		#var set_data: Dictionary = _icon_sets[icon_set]
+		#
+		#if set_data["type"] == "joypad":
+			#for pattern in set_data["joypad_model"]:
+				#if device_name.contains(pattern):
+					#model = icon_set
+					#found = true
+					#break
+		#
+		#if found:
+			#break
 	
 	_cached_model = model
 	return model
 
 func _get_joypad(button: int, device: int) -> Texture2D:
 	var model := _get_joypad_model(device)
-	var icon_set: Dictionary = _icon_sets[model]
+	#var icon_set: Dictionary = _icon_sets[model]
 	return null
 	#return get_set_icon(icon_set, icon_set.get(button, -1))
 
@@ -267,7 +259,7 @@ func _get_joypad_axis(axis: int, value: float, device: int) -> Texture2D:
 	
 	var id: int = axis + 2000 + 1000 * value
 	
-	var icon_set: Dictionary = _icon_sets[model]
+	#var icon_set: Dictionary = _icon_sets[model]
 	return null
 	#return get_set_icon(icon_set, icon_set.get(id, -1))
 
@@ -340,11 +332,9 @@ func _validate_property(property: Dictionary) -> void:
 		property.usage = 0
 	elif fit_mode != FitMode.CUSTOM and (property.name == "expand_mode" or property.name == "stretch_mode"):
 		property.usage = 0
-	elif property.name == "editor_reload_data":
-		property.usage = PROPERTY_USAGE_EDITOR
 	elif property.name == "joypad_model":
 		var models := ["Auto"]
-		models.append_array(_model_list)
+		#models.append_array(_model_list)
 		property.hint = PROPERTY_HINT_ENUM
 		property.hint_string = ",".join(models)
 

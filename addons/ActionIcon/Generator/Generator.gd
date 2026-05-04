@@ -171,6 +171,20 @@ class KeyboardBlueprint extends Blueprint:
 			
 			images.append(await generate_key(key))
 		
+		automap(binds, KEY_KP_0, KEY_0)
+		automap(binds, KEY_KP_1, KEY_1)
+		automap(binds, KEY_KP_2, KEY_2)
+		automap(binds, KEY_KP_3, KEY_3)
+		automap(binds, KEY_KP_4, KEY_4)
+		automap(binds, KEY_KP_5, KEY_5)
+		automap(binds, KEY_KP_6, KEY_6)
+		automap(binds, KEY_KP_7, KEY_7)
+		automap(binds, KEY_KP_8, KEY_8)
+		automap(binds, KEY_KP_9, KEY_9)
+		
+		automap(binds, KEY_KP_SUBTRACT, KEY_MINUS)
+		automap(binds, KEY_KP_DIVIDE, KEY_SLASH)
+		
 		return images
 	
 	func generate_key(mapping: KeyMapping) -> Image:
@@ -181,6 +195,10 @@ class KeyboardBlueprint extends Blueprint:
 		overlay_generator.texture = mapping.image
 		
 		return await viewport.print_image()
+	
+	func automap(binds: Dictionary, from: int, to: int):
+		if not from in binds and to in binds:
+			binds[from] = binds[to]
 
 class MouseBlueprint extends Blueprint:
 	func _init() -> void:
