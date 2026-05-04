@@ -2,6 +2,7 @@
 @icon("res://addons/ActionIcon/Icon.png")
 class_name ActionIcon extends TextureRect
 
+const _SHEET_COLUMNS = 10
 const _ACTION_SET_DIR = "addons/action_icon/action_set_directory"
 const _DEFAULT_TEXTURE = preload("uid://cx5x6dyfjq7h8")
 
@@ -93,6 +94,10 @@ static var _base_size: Vector2
 static var _default_joypad: String
 static var _use_joypad: bool
 
+static var _keyboard_set: IconSet
+static var _mouse_set: IconSet
+static var _joypad_sets: Dictionary[String, IconSet]
+
 static var _icon_sets: Dictionary[String, Dictionary]
 static var _custom_actions: RefCounted
 static var _model_list: Array[String]
@@ -102,10 +107,10 @@ var _fit_initialized: bool
 var _cached_model: String
 
 static func _static_init() -> void:
-	var set_cache_path: String = ProjectSettings.get_setting("addons/action_icon/set_cache_location")
+	var set_cache_path: String = ProjectSettings.get_setting(_ACTION_SET_DIR)
 	
 	var cfg := ConfigFile.new()
-	cfg.load(set_cache_path.path_join("Main.cfg"))
+	cfg.load(set_cache_path.path_join("Config.cfg"))
 	_base_size = cfg.get_value("config", "base_size")
 	_default_joypad = cfg.get_value("config", "default_joypad")
 	if cfg.get_value("config", "load_automatically"):
@@ -115,22 +120,33 @@ static func _static_init() -> void:
 
 ## Call it once to load the icon data, but only if [code]load_automatically[/code] is disabled in the config.
 static func initialize_data():
-	var set_cache_path: String = ProjectSettings.get_setting("addons/action_icon/set_cache_location")
-	for file in DirAccess.get_files_at(set_cache_path):
-		if file.get_extension() != "dat":
-			continue
+	var set_cache_path: String = ProjectSettings.get_setting(_ACTION_SET_DIR)
+	
+	var cfg := ConfigFile.new()
+	cfg.load(set_cache_path.path_join("Config.cfg"))
+	
+	var set_list: PackedStringArray = cfg.get_value("config", "set_list")
+	
+	for icon_set in set_list:
+		var sheet_path := set_cache_path.path_join(icon_set + ".png")
+		assert(ResourceLoader.exists(sheet_path, "Texture2D"), "Missing action icon sheet for %s." % icon_set)
+		var data: Dictionary = str_to_var(FileAccess.get_file_as_string(set_cache_path.path_join(icon_set + ".dat")))
 		
-		var sheet_path := set_cache_path.path_join(file).get_basename() + ".png"
-		assert(ResourceLoader.exists(sheet_path), "Missing action icon sheet for %s." % file.get_basename())
+		var set_object := IconSet.new()
+		set_object.texture = load(sheet_path)
 		
-		var data: Dictionary = str_to_var(FileAccess.open(set_cache_path.path_join(file), FileAccess.READ).get_as_text())
-		var sheet: Texture2D = load(sheet_path)
+		for key in data:
+			if key is int:
+				set_object.mapping[key] = data[key]
 		
-		data["texture"] = sheet
-		_icon_sets[file.get_basename()] = data
-		
-		if data["type"] == "joypad":
-			_model_list.append(data["joypad_name"])
+		match data["$type"]:
+			KEYBOARD:
+				_keyboard_set = set_object
+			MOUSE:
+				_mouse_set = set_object
+			JOYPAD:
+				for model in data["$models"]:
+					_joypad_sets[model] = set_object
 	
 	var custom_actions_path := set_cache_path.path_join("CustomActions.gd")
 	if ResourceLoader.exists(custom_actions_path):
@@ -214,11 +230,7 @@ func _refresh():
 		push_error("No icon for action: %s" % action_name)
 
 static func _get_keyboard(key: int) -> Texture2D:
-	for iset in _icon_sets.values(): ## enum tu
-		if iset["type"] == "keyboard":
-			return get_set_icon(iset, iset.get(key, -1))
-	
-	return null
+	return get_set_icon(_keyboard_set, _keyboard_set.mapping.get(key, -1))
 
 func _get_joypad_model(device: int) -> String:
 	if not _cached_model.is_empty():
@@ -247,7 +259,8 @@ func _get_joypad_model(device: int) -> String:
 func _get_joypad(button: int, device: int) -> Texture2D:
 	var model := _get_joypad_model(device)
 	var icon_set: Dictionary = _icon_sets[model]
-	return get_set_icon(icon_set, icon_set.get(button, -1))
+	return null
+	#return get_set_icon(icon_set, icon_set.get(button, -1))
 
 func _get_joypad_axis(axis: int, value: float, device: int) -> Texture2D:
 	var model := _get_joypad_model(device)
@@ -255,7 +268,8 @@ func _get_joypad_axis(axis: int, value: float, device: int) -> Texture2D:
 	var id: int = axis + 2000 + 1000 * value
 	
 	var icon_set: Dictionary = _icon_sets[model]
-	return get_set_icon(icon_set, icon_set.get(id, -1))
+	return null
+	#return get_set_icon(icon_set, icon_set.get(id, -1))
 
 func _get_mouse(button: int) -> Texture2D:
 	#match button:
@@ -354,12 +368,16 @@ static func _action_get_events(action_name: StringName) -> Array[InputEvent]:
 	else:
 		return InputMap.action_get_events(action_name)
 
-static func get_set_icon(set_data: Dictionary, idx: int) -> Texture2D:
+static func get_set_icon(icon_set: IconSet, idx: int) -> Texture2D:
 	if idx < 0:
 		return null
 	
 	var tex := AtlasTexture.new()
-	tex.atlas = set_data["texture"]
+	tex.atlas = icon_set.texture
 	tex.region.size = _base_size
-	tex.region.position = Vector2(idx % 16, idx / 16) * _base_size
+	tex.region.position = Vector2(idx % _SHEET_COLUMNS, idx / _SHEET_COLUMNS) * _base_size
 	return tex
+
+class IconSet:
+	var texture: Texture2D
+	var mapping: Dictionary[int, int]

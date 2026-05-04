@@ -52,6 +52,9 @@ func show():
 					for mapping_name: String in mapping_data:
 						var mapping := KeyboardBlueprint.KeyMapping.new()
 						mapping.base = texture
+						mapping.keycode = OS.find_keycode_from_string(mapping_name)
+						if mapping.keycode == KEY_NONE:
+							push_warning("Unrecognized keycode name: %s" % mapping_name)
 						
 						var mapping_value: Variant = mapping_data[mapping_name]
 						if mapping_value is int:
@@ -84,24 +87,44 @@ func show():
 	dialog.popup_centered_ratio(0.8)
 
 func _confirm_generate() -> void:
+	var base_path: String = ProjectSettings.get_setting(ActionIcon._ACTION_SET_DIR)
+	var set_list: PackedStringArray
+	
 	for blueprint in blueprint_list:
 		if blueprint is not KeyboardBlueprint:
 			continue
+		
+		set_list.append(blueprint.name)
 		
 		blueprint.viewport = viewport
 		blueprint.base_generator = base_generator
 		blueprint.text_generator = text_generator
 		blueprint.overlay_generator = overlay_generator
 		
-		var images := await blueprint.generate()
+		var binds: Dictionary
+		binds["$type"] = blueprint.type
+		var images := await blueprint.generate(binds)
 		
-		var sheet := Image.create_empty(viewport.size.x * mini(images.size(), 10), viewport.size.y * (images.size() / 10 + 1), false, Image.FORMAT_RGBA8)
+		var sheet := Image.create_empty(viewport.size.x * mini(images.size(), ActionIcon._SHEET_COLUMNS), viewport.size.y * (images.size() / ActionIcon._SHEET_COLUMNS + 1), false, Image.FORMAT_RGBA8)
 		
 		for i in images.size():
 			var image := images[i]
-			sheet.blit_rect(image, Rect2(Vector2i(), image.get_size()), Vector2i(i % 10 * viewport.size.x, i / 10 * viewport.size.y))
+			sheet.blit_rect(image, Rect2(Vector2i(), image.get_size()), Vector2i(i % ActionIcon._SHEET_COLUMNS * viewport.size.x, i / ActionIcon._SHEET_COLUMNS * viewport.size.y))
 		
-		sheet.save_png("res://Test/%s.png" % blueprint.name)
+		var path := base_path.path_join("%s.png" % blueprint.name)
+		sheet.save_png(path)
+		
+		path = base_path.path_join("%s.dat" % blueprint.name)
+		var f := FileAccess.open(path, FileAccess.WRITE)
+		f.store_string(var_to_str(binds))
+		f.close()
+		
+		EditorInterface.get_resource_filesystem().update_file(path)
+	
+	var config := ConfigFile.new()
+	config.load("res://addons/ActionIcon/Generator/Blueprints/Config.cfg")
+	config.set_value("config", "set_list", set_list)
+	config.save(base_path.path_join("Config.cfg"))
 
 class Blueprint:
 	enum Type { KEYBOARD, MOUSE, JOYPAD }
@@ -114,11 +137,12 @@ class Blueprint:
 	var text_generator: Label
 	var overlay_generator: TextureRect
 	
-	func generate() -> Array[Image]:
+	func generate(binds: Dictionary) -> Array[Image]:
 		return []
 
 class KeyboardBlueprint extends Blueprint:
 	class KeyMapping:
+		var keycode: int
 		var base: Texture2D
 		var text: String
 		var text_offset: Vector2
@@ -135,10 +159,12 @@ class KeyboardBlueprint extends Blueprint:
 	func _init() -> void:
 		type = Type.KEYBOARD
 	
-	func generate() -> Array[Image]:
+	func generate(binds: Dictionary) -> Array[Image]:
 		var images: Array[Image]
 		
 		for key in mappings:
+			binds[key.keycode] = images.size()
+			
 			text_generator.add_theme_font_size_override(&"font_size", key.font_size if key.font_size != 0 else font_size)
 			text_generator.add_theme_font_override(&"font", key.font if key.font else font)
 			text_generator.add_theme_color_override(&"font_color", key.font_color if key.font_color.a > 0 else font_color)
