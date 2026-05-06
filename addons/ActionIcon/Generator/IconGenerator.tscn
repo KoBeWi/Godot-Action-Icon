@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://dels8j71udktn"]
+
+[sub_resource type="GDScript" id="GDScript_2mjje"]
+script/source = "@tool
+extends MarginContainer
+
+var base: TextureRect
+var label: Label
+var overlay: TextureRect
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_SCENE_INSTANTIATED:
+		base = %Base
+		label = %Text
+		overlay = %Overlay
+"
+
+[node name="IconGenerator" type="MarginContainer" unique_id=689429734]
+auto_translate_mode = 2
+clip_contents = true
+offset_right = 100.0
+offset_bottom = 100.0
+script = SubResource("GDScript_2mjje")
+
+[node name="Control" type="Control" parent="." unique_id=207858381]
+clip_contents = true
+layout_mode = 2
+
+[node name="Base" type="TextureRect" parent="Control" unique_id=1574072794]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Text" type="Label" parent="Control" unique_id=274497191]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 1
+offset_transform_enabled = true
+theme_override_constants/line_spacing = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Overlay" type="TextureRect" parent="Control" unique_id=1732637586]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch_mode = 3
