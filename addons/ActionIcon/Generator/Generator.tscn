@@ -138,33 +138,13 @@ transparent_bg = true
 size = Vector2i(100, 100)
 script = SubResource("GDScript_heum6")
 
-[node name="BaseGenerator" type="TextureRect" parent="Viewport" unique_id=472175003]
+[node name="ViewportGrid" type="GridContainer" parent="Viewport" unique_id=1655790735]
 unique_name_in_owner = true
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TextGenerator" type="Label" parent="Viewport" unique_id=870428169]
-unique_name_in_owner = true
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/line_spacing = 0
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="OverlayGenerator" type="TextureRect" parent="Viewport" unique_id=1436460410]
-unique_name_in_owner = true
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-stretch_mode = 3
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 10
 
 [connection signal="confirmed" from="Dialog" to="." method="_confirm_generate"]
 [connection signal="focus_entered" from="Dialog" to="." method="_on_dialog_focus_entered"]

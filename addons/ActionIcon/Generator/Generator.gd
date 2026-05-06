@@ -1,17 +1,15 @@
 @tool
 extends Node
 
-@onready var viewport: SubViewport = %Viewport
-@onready var base_generator: TextureRect = %BaseGenerator
-@onready var text_generator: Label = %TextGenerator
-@onready var overlay_generator: TextureRect = %OverlayGenerator
-
 @onready var keyboard_sets: GridContainer = %KeyboardSets
 @onready var mouse_sets: GridContainer = %MouseSets
 @onready var joypad_sets: GridContainer = %JoypadSets
 
 @onready var preview: Control = %Preview
 @onready var preview_label: Label = %PreviewLabel
+
+@onready var viewport: SubViewport = %Viewport
+@onready var viewport_grid: GridContainer = %ViewportGrid
 
 var dialog: ConfirmationDialog
 var blueprint_list: Array[Blueprint]
@@ -166,25 +164,31 @@ func _confirm_generate() -> void:
 	
 	for blueprint_name in selected_blueprints:
 		var blueprint := get_blueprint_by_name(blueprint_name)
-		if blueprint is not KeyboardBlueprint:
+		if blueprint is not KeyboardBlueprint:##
 			continue
 		
 		set_list.append(blueprint.name)
 		
-		blueprint.viewport = viewport
-		blueprint.base_generator = base_generator
-		blueprint.text_generator = text_generator
-		blueprint.overlay_generator = overlay_generator
-		
 		var binds: Dictionary
 		binds["$type"] = blueprint.type
-		var images: Array[Image]# := await blueprint.generate(binds)
 		
-		var sheet := Image.create_empty(viewport.size.x * mini(images.size(), ActionIcon._SHEET_COLUMNS), viewport.size.y * (images.size() / ActionIcon._SHEET_COLUMNS + 1), false, Image.FORMAT_RGBA8)
+		for node in viewport_grid.get_children():
+			node.free()
 		
-		for i in images.size():
-			var image := images[i]
-			sheet.blit_rect(image, Rect2(Vector2i(), image.get_size()), Vector2i(i % ActionIcon._SHEET_COLUMNS * viewport.size.x, i / ActionIcon._SHEET_COLUMNS * viewport.size.y))
+		blueprint.generate_start()
+		while true:
+			var element: Control = preload("uid://dels8j71udktn").instantiate()
+			element.custom_minimum_size = Vector2(100, 100)##
+			
+			if not blueprint._generate_next(element, binds):
+				element.free()
+				break
+			
+			viewport_grid.add_child(element)
+			blueprint.current_index += 1
+		
+		viewport.size = viewport_grid.size
+		var sheet: Image = await viewport.print_image()
 		
 		var path := base_path.path_join("%s.png" % blueprint.name)
 		sheet.save_png(path)
@@ -224,11 +228,6 @@ class Blueprint:
 	
 	var name: String
 	var type: Type
-	
-	var viewport: SubViewport
-	var base_generator: TextureRect
-	var text_generator: Label
-	var overlay_generator: TextureRect
 	
 	var current_index: int
 	var modified_time: int
@@ -311,9 +310,22 @@ class KeyboardBlueprint extends Blueprint:
 	
 	func _generate_next(element: Node, binds: Dictionary) -> bool:
 		if current_index == mappings.size():
+			automap(binds, KEY_KP_0, KEY_0)
+			automap(binds, KEY_KP_1, KEY_1)
+			automap(binds, KEY_KP_2, KEY_2)
+			automap(binds, KEY_KP_3, KEY_3)
+			automap(binds, KEY_KP_4, KEY_4)
+			automap(binds, KEY_KP_5, KEY_5)
+			automap(binds, KEY_KP_6, KEY_6)
+			automap(binds, KEY_KP_7, KEY_7)
+			automap(binds, KEY_KP_8, KEY_8)
+			automap(binds, KEY_KP_9, KEY_9)
+			automap(binds, KEY_KP_SUBTRACT, KEY_MINUS)
+			automap(binds, KEY_KP_DIVIDE, KEY_SLASH)
 			return false
 		
 		var key := mappings[current_index]
+		binds[key.keycode] = current_index
 		
 		element.base.texture = key.base
 		
@@ -327,42 +339,6 @@ class KeyboardBlueprint extends Blueprint:
 		element.overlay.texture = key.image
 		
 		return true
-	
-	func generate(binds: Dictionary) -> Array[Image]:
-		var images: Array[Image]
-		
-		for key in mappings:
-			binds[key.keycode] = images.size()
-			
-			text_generator.add_theme_font_size_override(&"font_size", key.font_size if key.font_size != 0 else font_size)
-			text_generator.add_theme_font_override(&"font", key.font if key.font else font)
-			text_generator.add_theme_color_override(&"font_color", key.font_color if key.font_color.a > 0 else font_color)
-			
-			images.append(await generate_key(key))
-		
-		automap(binds, KEY_KP_0, KEY_0)
-		automap(binds, KEY_KP_1, KEY_1)
-		automap(binds, KEY_KP_2, KEY_2)
-		automap(binds, KEY_KP_3, KEY_3)
-		automap(binds, KEY_KP_4, KEY_4)
-		automap(binds, KEY_KP_5, KEY_5)
-		automap(binds, KEY_KP_6, KEY_6)
-		automap(binds, KEY_KP_7, KEY_7)
-		automap(binds, KEY_KP_8, KEY_8)
-		automap(binds, KEY_KP_9, KEY_9)
-		automap(binds, KEY_KP_SUBTRACT, KEY_MINUS)
-		automap(binds, KEY_KP_DIVIDE, KEY_SLASH)
-		
-		return images
-	
-	func generate_key(mapping: KeyMapping) -> Image:
-		base_generator.texture = mapping.base
-		text_generator.text = mapping.text
-		text_generator.position = mapping.text_offset
-		text_generator.size = viewport.size
-		overlay_generator.texture = mapping.image
-		
-		return await viewport.print_image()
 	
 	func automap(binds: Dictionary, from: int, to: int):
 		if not from in binds and to in binds:
