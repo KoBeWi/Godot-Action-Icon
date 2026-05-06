@@ -172,13 +172,17 @@ func _refresh():
 		return
 	
 	_pending_refresh = false
-	var is_joypad := (joypad_mode == JoypadMode.FORCE_JOYPAD or (joypad_mode == JoypadMode.ADAPTIVE and _use_joypad))
+	var is_joypad := joypad_mode == JoypadMode.FORCE_JOYPAD or (joypad_mode == JoypadMode.ADAPTIVE and _use_joypad)
 	
 	if _custom_actions:
 		var action_texture: Texture2D = await _custom_actions.get_texture(action_name, self, is_joypad)
 		if action_texture:
 			texture = action_texture
 			return
+	
+	if action_name.is_empty():
+		texture = _DEFAULT_TEXTURE
+		return
 	
 	var events := _action_get_events(action_name)
 	if events.is_empty():
@@ -193,22 +197,22 @@ func _refresh():
 	var joypad_id: int
 	
 	for event in events:
-		if event is InputEventKey and keyboard == -1:
+		if keyboard == -1 and event is InputEventKey:
 			if event.keycode == 0:
 				keyboard = event.physical_keycode
 			else:
 				keyboard = event.keycode
-		elif event is InputEventMouseButton and mouse == -1:
+		elif mouse == -1 and event is InputEventMouseButton:
 			mouse = event.button_index
-		elif event is InputEventJoypadButton and joypad == -1:
+		elif joypad == -1 and event is InputEventJoypadButton:
 			joypad = event.button_index
 			joypad_id = event.device
-		elif event is InputEventJoypadMotion and joypad_axis == -1:
+		elif joypad_axis == -1 and event is InputEventJoypadMotion:
 			joypad_axis = event.axis
 			joypad_axis_value = event.axis_value
 			joypad_id = event.device
 	
-	if is_joypad and joypad >= 0 and (joypad_axis < 0 or not favor_axis):
+	if is_joypad and joypad >= 0 and (not favor_axis or joypad_axis < 0):
 		texture = _get_joypad(joypad, joypad_id)
 	elif is_joypad and joypad_axis >= 0:
 		texture = _get_joypad_axis(joypad_axis, joypad_axis_value, joypad_id)
@@ -218,8 +222,9 @@ func _refresh():
 		elif keyboard >= 0:
 			texture = _get_keyboard(keyboard)
 	
-	if not texture and action_name != &"":
-		push_error("No icon for action: %s" % action_name)
+	if not texture:
+		push_warning("No icon found for action: %s" % action_name)
+		texture = _DEFAULT_TEXTURE
 
 static func _get_keyboard(key: int) -> Texture2D:
 	return get_set_icon(_keyboard_set, _keyboard_set.mapping.get(key, -1))

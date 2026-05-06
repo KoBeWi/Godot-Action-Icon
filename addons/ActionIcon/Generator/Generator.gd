@@ -6,10 +6,17 @@ extends Node
 @onready var text_generator: Label = %TextGenerator
 @onready var overlay_generator: TextureRect = %OverlayGenerator
 
+@onready var keyboard_sets: GridContainer = %KeyboardSets
+@onready var mouse_sets: GridContainer = %MouseSets
+@onready var joypad_sets: GridContainer = %JoypadSets
+
 var dialog: ConfirmationDialog
 var blueprint_list: Array[Blueprint]
 
 var main_dir: DirAccess
+
+var keyboard_group := ButtonGroup.new()
+var mouse_group := ButtonGroup.new()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
@@ -78,19 +85,84 @@ func show():
 				
 				blueprint = kblueprint
 			
+			"mouse":
+				blueprint = MouseBlueprint.new()
+			
+			"joypad":
+				blueprint = JoypadBlueprint.new()
+			
 			_:
 				continue
 		
 		blueprint.name = dir
 		blueprint_list.append(blueprint)
 	
+	for child in keyboard_sets.get_children():
+		child.free()
+	for child in mouse_sets.get_children():
+		child.free()
+	for child in joypad_sets.get_children():
+		child.free()
+	
+	var preview_icon := EditorInterface.get_editor_theme().get_icon(&"Search", &"EditorIcons")
+	for blueprint in blueprint_list:
+		match blueprint.type:
+			Blueprint.Type.KEYBOARD:
+				var checkbox := CheckBox.new()
+				checkbox.text = blueprint.name
+				checkbox.button_group = keyboard_group
+				keyboard_sets.add_child(checkbox)
+				
+				var button := Button.new()
+				button.icon = preview_icon
+				keyboard_sets.add_child(button)
+				
+				if keyboard_sets.get_child_count() == 2:
+					checkbox.button_pressed = true
+			
+			Blueprint.Type.MOUSE:
+				var checkbox := CheckBox.new()
+				checkbox.text = blueprint.name
+				checkbox.button_group = mouse_group
+				mouse_sets.add_child(checkbox)
+				
+				var button := Button.new()
+				button.icon = preview_icon
+				mouse_sets.add_child(button)
+				
+				if mouse_sets.get_child_count() == 2:
+					checkbox.button_pressed = true
+			
+			Blueprint.Type.JOYPAD:
+				var checkbox := CheckBox.new()
+				checkbox.text = blueprint.name
+				joypad_sets.add_child(checkbox)
+				
+				var button := Button.new()
+				button.icon = preview_icon
+				joypad_sets.add_child(button)
+	
 	dialog.popup_centered_ratio(0.8)
+
+func get_blueprint_by_name(bname: String) -> Blueprint:
+	for b in blueprint_list:
+		if b.name == bname:
+			return b
+	return null
 
 func _confirm_generate() -> void:
 	var base_path: String = ProjectSettings.get_setting(ActionIcon._ACTION_SET_DIR)
 	var set_list: PackedStringArray
 	
-	for blueprint in blueprint_list:
+	var selected_blueprints: PackedStringArray
+	selected_blueprints.append(keyboard_group.get_pressed_button().text)
+	selected_blueprints.append(mouse_group.get_pressed_button().text)
+	for node in joypad_sets.get_children():
+		if node is CheckBox and node.button_pressed:
+			selected_blueprints.append(node.text)
+	
+	for blueprint_name in selected_blueprints:
+		var blueprint := get_blueprint_by_name(blueprint_name)
 		if blueprint is not KeyboardBlueprint:
 			continue
 		

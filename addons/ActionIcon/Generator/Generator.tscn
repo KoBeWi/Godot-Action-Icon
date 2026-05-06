@@ -21,7 +21,63 @@ oversampling_override = 1.0
 title = "Generate Icon Set"
 position = Vector2i(0, 36)
 size = Vector2i(800, 600)
+visible = true
 ok_button_text = "Generate"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Dialog" unique_id=817055088]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 792.0
+offset_bottom = 551.0
+
+[node name="Preview" type="Control" parent="Dialog/VBoxContainer" unique_id=1799073883]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Dialog/VBoxContainer" unique_id=587593333]
+layout_mode = 2
+size_flags_vertical = 3
+scroll_hint_mode = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Dialog/VBoxContainer/ScrollContainer" unique_id=693405738]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="Dialog/VBoxContainer/ScrollContainer/VBoxContainer" unique_id=308365666]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Keyboard Set"
+horizontal_alignment = 1
+
+[node name="KeyboardSets" type="GridContainer" parent="Dialog/VBoxContainer/ScrollContainer/VBoxContainer" unique_id=1596059233]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+columns = 2
+
+[node name="Label2" type="Label" parent="Dialog/VBoxContainer/ScrollContainer/VBoxContainer" unique_id=685139097]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Mouse Set"
+horizontal_alignment = 1
+
+[node name="MouseSets" type="GridContainer" parent="Dialog/VBoxContainer/ScrollContainer/VBoxContainer" unique_id=968285904]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+columns = 2
+
+[node name="Label3" type="Label" parent="Dialog/VBoxContainer/ScrollContainer/VBoxContainer" unique_id=143270695]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Joypad Sets"
+horizontal_alignment = 1
+
+[node name="JoypadSets" type="GridContainer" parent="Dialog/VBoxContainer/ScrollContainer/VBoxContainer" unique_id=642062505]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+columns = 2
 
 [node name="Viewport" type="SubViewport" parent="." unique_id=540985589]
 unique_name_in_owner = true
