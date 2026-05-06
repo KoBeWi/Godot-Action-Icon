@@ -16,6 +16,8 @@ var blueprint_list: Array[Blueprint]
 var current_previewed: Blueprint
 
 var main_dir: DirAccess
+var base_size: Vector2i
+var default_joypad: String
 
 var keyboard_group := ButtonGroup.new()
 var mouse_group := ButtonGroup.new()
@@ -33,6 +35,12 @@ func _notification(what: int) -> void:
 
 func show():
 	blueprint_list.clear()
+	
+	var main_config := ConfigFile.new()
+	main_config.load(main_dir.get_current_dir().path_join("Config.cfg"))
+	base_size = main_config.get_value("config", "base_size")
+	default_joypad = main_config.get_value("config", "default_joypad")
+	
 	for dir in main_dir.get_directories():
 		var full_dir := main_dir.get_current_dir().path_join(dir)
 		var full_path := full_dir.path_join("Mapping.cfg")
@@ -106,6 +114,11 @@ func show():
 				var button := Button.new()
 				button.icon = preview_icon
 				joypad_sets.add_child(button)
+				
+				if blueprint.name == default_joypad:
+					checkbox.button_pressed = true
+					checkbox.disabled = true
+					checkbox.tooltip_text = "Default joypad model must be included."
 	
 	dialog.popup_centered_ratio(0.8)
 
@@ -126,7 +139,7 @@ func preview_blueprint(blueprint: Blueprint):
 	blueprint.generate_start()
 	while true:
 		var element: Control = preload("uid://dels8j71udktn").instantiate()
-		element.custom_minimum_size = Vector2(100, 100)
+		element.custom_minimum_size = base_size
 		
 		if not blueprint._generate_next(element, {}):
 			element.free()
@@ -178,7 +191,7 @@ func _confirm_generate() -> void:
 		blueprint.generate_start()
 		while true:
 			var element: Control = preload("uid://dels8j71udktn").instantiate()
-			element.custom_minimum_size = Vector2(100, 100)##
+			element.custom_minimum_size = base_size
 			
 			if not blueprint._generate_next(element, binds):
 				element.free()

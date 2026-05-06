@@ -11,6 +11,15 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(1, 1, 1, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q864x"]
+content_margin_left = 4.0
+content_margin_right = 4.0
+bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="Theme" id="Theme_bj8w8"]
+VScrollBar/styles/grabber = null
+VScrollBar/styles/scroll = SubResource("StyleBoxFlat_q864x")
+
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_q864x"]
 texture = ExtResource("2_bj8w8")
 axis_stretch_horizontal = 1
@@ -40,16 +49,16 @@ script = ExtResource("1_heum6")
 unique_name_in_owner = true
 oversampling_override = 1.0
 title = "Generate Icon Set"
-position = Vector2i(0, 36)
-size = Vector2i(1020, 600)
+position = Vector2i(0, 24)
+size = Vector2i(1022, 600)
 visible = true
 ok_button_text = "Generate"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Dialog" unique_id=817055088]
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 1012.0
-offset_bottom = 551.0
+offset_left = 9.0
+offset_top = 9.0
+offset_right = 1013.0
+offset_bottom = 549.0
 
 [node name="PanelContainer" type="PanelContainer" parent="Dialog/VBoxContainer" unique_id=1455163630]
 layout_mode = 2
@@ -57,8 +66,10 @@ size_flags_horizontal = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_heum6")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Dialog/VBoxContainer/PanelContainer" unique_id=498020197]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(1000, 300)
 layout_mode = 2
+theme = SubResource("Theme_bj8w8")
 theme_override_styles/panel = SubResource("StyleBoxTexture_q864x")
 horizontal_scroll_mode = 0
 
