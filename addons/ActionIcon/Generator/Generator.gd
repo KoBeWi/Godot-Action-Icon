@@ -134,6 +134,8 @@ func preview_blueprint(blueprint: Blueprint):
 	for child in preview.get_children():
 		child.free()
 	
+	try_update_blueprint(blueprint)
+	
 	current_previewed = blueprint
 	
 	blueprint.generate_start()
@@ -309,8 +311,14 @@ class KeyboardBlueprint extends Blueprint:
 				elif mapping_value is Dictionary:
 					mapping.text = mapping_value.get("text", mapping.text)
 					mapping.text_offset = mapping_value.get("text_offset", mapping.text_offset)
-					mapping.font_size = mapping_value.get("font_size", mapping.font_size)
 					mapping.font_color = mapping_value.get("font_color", mapping.font_color)
+					
+					if mapping_value.has("font_size"):
+						mapping.font_size = mapping_value["font_size"]
+					elif mapping_value.has("font_percent"):
+						mapping.font_size = roundi(font_size * mapping_value["font_percent"] * 0.01)
+					elif mapping_value.has("font_ratio"):
+						mapping.font_size = roundi(font_size * mapping_value["font_ratio"])
 					
 					if mapping_value.has("font"):
 						mapping.font = load(base_dir.path_join(mapping["font"]))
