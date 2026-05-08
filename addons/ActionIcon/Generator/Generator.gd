@@ -202,6 +202,8 @@ func _confirm_generate() -> void:
 			viewport_grid.add_child(element)
 			blueprint.current_index += 1
 		
+		viewport_grid.reset_size()
+		
 		viewport.size = viewport_grid.size
 		var sheet: Image = await viewport.print_image()
 		
