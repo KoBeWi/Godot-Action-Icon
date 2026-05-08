@@ -187,6 +187,7 @@ func _refresh():
 	var events := _action_get_events(action_name)
 	if events.is_empty():
 		texture = _DEFAULT_TEXTURE
+		push_warning("Action \"%s\" has no events." % action_name)
 		return
 	
 	var keyboard := -1
@@ -223,7 +224,7 @@ func _refresh():
 			texture = _get_keyboard(keyboard)
 	
 	if not texture:
-		push_warning("No icon found for action: %s" % action_name)
+		push_warning("No icon found for action \"%s\"." % action_name)
 		texture = _DEFAULT_TEXTURE
 
 static func _get_keyboard(key: int) -> Texture2D:

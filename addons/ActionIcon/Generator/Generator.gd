@@ -102,6 +102,7 @@ func show():
 				var button := Button.new()
 				button.icon = preview_icon
 				mouse_sets.add_child(button)
+				button.pressed.connect(preview_blueprint.bind(blueprint))
 				
 				if mouse_sets.get_child_count() == 2:
 					checkbox.button_pressed = true
@@ -114,6 +115,7 @@ func show():
 				var button := Button.new()
 				button.icon = preview_icon
 				joypad_sets.add_child(button)
+				button.pressed.connect(preview_blueprint.bind(blueprint))
 				
 				if blueprint.name == default_joypad:
 					checkbox.button_pressed = true
@@ -368,8 +370,71 @@ class KeyboardBlueprint extends Blueprint:
 			binds[from] = binds[to]
 
 class MouseBlueprint extends Blueprint:
+	class MouseMapping:
+		var button: int
+		var image: Texture2D
+	
+	var base_texture: Texture2D
+	var middle_texture: Texture2D
+	var mappings: Array[MouseMapping]
+	
 	func _init() -> void:
 		type = Type.MOUSE
+
+	func _load_data(file: ConfigFile, base_dir: String) -> void:
+		base_texture = load(base_dir.path_join(file.get_value("info", "base_image")))
+		middle_texture = null
+		
+		var add_button_mapping = func(key: String, button: int):
+			if not file.has_section_key("buttons", key):
+				return
+			
+			var mapping := MouseMapping.new()
+			mapping.button = button
+			mapping.image = load(base_dir.path_join(file.get_value("buttons", key)))
+			mappings.append(mapping)
+		
+		add_button_mapping.call("left", MOUSE_BUTTON_LEFT)
+		add_button_mapping.call("right", MOUSE_BUTTON_RIGHT)
+		add_button_mapping.call("middle", MOUSE_BUTTON_MIDDLE)
+		add_button_mapping.call("extra1", MOUSE_BUTTON_XBUTTON1)
+		add_button_mapping.call("extra2", MOUSE_BUTTON_XBUTTON2)
+		
+		var add_wheel_mapping = func(key: String, button: int):
+			if not file.has_section_key("wheel", key):
+				return
+			
+			var mapping := MouseMapping.new()
+			mapping.button = button
+			mapping.image = load(base_dir.path_join(file.get_value("wheel", key)))
+			mappings.append(mapping)
+		
+		add_wheel_mapping.call("up", MOUSE_BUTTON_WHEEL_UP)
+		add_wheel_mapping.call("down", MOUSE_BUTTON_WHEEL_DOWN)
+		add_wheel_mapping.call("right", MOUSE_BUTTON_WHEEL_RIGHT)
+		add_wheel_mapping.call("left", MOUSE_BUTTON_WHEEL_LEFT)
+	
+	func _generate_next(element: Node, binds: Dictionary) -> bool:
+		if current_index == mappings.size():
+			return false
+		
+		var mapping := mappings[current_index]
+		element.base.texture = base_texture
+		
+		if mapping.button >= MOUSE_BUTTON_WHEEL_UP and mapping.button <= MOUSE_BUTTON_WHEEL_RIGHT:
+			if not middle_texture:
+				push_warning("No middle button defined, wheel image will be incomplete.")
+			
+			element.overlay.texture = middle_texture
+			element.overlay2.texture = mapping.image
+		else:
+			element.overlay.texture = mapping.image
+		
+		if mapping.button == MOUSE_BUTTON_MIDDLE:
+			middle_texture = mapping.image
+		
+		binds[mapping.button] = current_index
+		return true
 
 class JoypadBlueprint extends Blueprint:
 	func _init() -> void:

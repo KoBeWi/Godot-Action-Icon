@@ -2,22 +2,24 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bp0c4hpvoe3y5"
-path="res://.godot/imported/Left.png-6dfa1c8bf172c72abe8afd8d1de1aa63.ctex"
+uid="uid://bgmwx61t6sty3"
+path="res://.godot/imported/Right.png-409c0ff6b8f49273812fbcd047263f4b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Mouse/Left.png"
-dest_files=["res://.godot/imported/Left.png-6dfa1c8bf172c72abe8afd8d1de1aa63.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/MouseDark/Right.png"
+dest_files=["res://.godot/imported/Right.png-409c0ff6b8f49273812fbcd047263f4b.ctex"]
 
 [params]
 
 compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
@@ -25,6 +27,10 @@ mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
 process/fix_alpha_border=true
 process/premult_alpha=false
 process/normal_map_invert_y=false
