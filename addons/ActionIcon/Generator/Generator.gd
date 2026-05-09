@@ -254,16 +254,19 @@ class Blueprint:
 	func get_section(config_file: ConfigFile, section: String, base_dir: String) -> Dictionary[String, Variant]:
 		var ret: Dictionary[String, Variant]
 		
+		var copied: ConfigFile
 		for key in config_file.get_section_keys(section):
 			if key == "copy":
 				var copyfile := config_file.get_value(section, key)
-				var copied := ConfigFile.new()
+				copied = ConfigFile.new()
 				copied.load(base_dir.path_join("..").path_join(copyfile).path_join("Mapping.cfg"))
-				ret.merge(get_section(copied, section, base_dir))
-				
 				continue
 			
 			ret[key] = config_file.get_value(section, key)
+		
+		if copied:
+			var copied_stuff := get_section(copied, section, base_dir)
+			ret.merge(copied_stuff)
 		
 		return ret
 	
@@ -299,10 +302,9 @@ class KeyboardBlueprint extends Blueprint:
 		font = load(base_dir.path_join(file.get_value("info", "font")))
 		font_color = Color(file.get_value("info", "font_color"))
 		font_size = file.get_value("info", "font_size")
-		
-		var maplist := get_section(file, "keys", base_dir)
 		mappings.clear()
 		
+		var maplist := get_section(file, "keys", base_dir)
 		for texname in maplist:
 			var texture: Texture2D = load(base_dir.path_join(texname))
 			
@@ -391,6 +393,7 @@ class MouseBlueprint extends Blueprint:
 	func _load_data(file: ConfigFile, base_dir: String) -> void:
 		base_texture = load(base_dir.path_join(file.get_value("info", "base_image")))
 		middle_texture = null
+		mappings.clear()
 		
 		var maplist := get_section(file, "buttons", base_dir)
 		var add_button_mapping = func(key: String, button: int):
@@ -460,6 +463,7 @@ class JoypadBlueprint extends Blueprint:
 	
 	func _load_data(file: ConfigFile, base_dir: String) -> void:
 		models = file.get_value("info", "models")
+		mappings.clear()
 		
 		var maplist := get_section(file, "buttons", base_dir)
 		var add_button_mapping = func(key: String, button: int):

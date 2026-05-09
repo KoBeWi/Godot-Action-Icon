@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://45dpmy6xtrsp"
-path="res://.godot/imported/ShareAlt.png-c9b851820de1c6c13fb89265cd564a8a.ctex"
+uid="uid://bcsqv6orfa1lv"
+path="res://.godot/imported/LT.png-4b13361cda8c158707fbf1077d9a9682.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Generator/Blueprints/JoypadDualSense/ShareAlt.png"
-dest_files=["res://.godot/imported/ShareAlt.png-c9b851820de1c6c13fb89265cd564a8a.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/JoypadXbox/LT.png"
+dest_files=["res://.godot/imported/LT.png-4b13361cda8c158707fbf1077d9a9682.ctex"]
 
 [params]
 

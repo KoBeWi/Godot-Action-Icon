@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ccpf7cdekmwph"
-path="res://.godot/imported/DPadLeft.png-4ff2d60be8490efc266a3321d8208916.ctex"
+uid="uid://rbune2vohysq"
+path="res://.godot/imported/DPadAll.png-3b576027ecea7bff3fb281587c573743.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Generator/Blueprints/JoyCon/DPadLeft.png"
-dest_files=["res://.godot/imported/DPadLeft.png-4ff2d60be8490efc266a3321d8208916.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/JoyCon/DPadAll.png"
+dest_files=["res://.godot/imported/DPadAll.png-3b576027ecea7bff3fb281587c573743.ctex"]
 
 [params]
 

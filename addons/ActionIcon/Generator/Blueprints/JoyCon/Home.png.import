@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bl66oerqnv7f8"
-path="res://.godot/imported/OptionsAlt.png-93b013a6bfbc4139f57431cd2c77ed60.ctex"
+uid="uid://dqgt0a3lc2xat"
+path="res://.godot/imported/Home.png-7fad3138e02dc70e63def197a90bca29.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Generator/Blueprints/JoypadDualSense/OptionsAlt.png"
-dest_files=["res://.godot/imported/OptionsAlt.png-93b013a6bfbc4139f57431cd2c77ed60.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/JoyCon/Home.png"
+dest_files=["res://.godot/imported/Home.png-7fad3138e02dc70e63def197a90bca29.ctex"]
 
 [params]
 
