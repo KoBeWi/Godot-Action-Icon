@@ -251,6 +251,18 @@ class Blueprint:
 	var current_index: int
 	var modified_time: int
 	
+	func get_section(config_file: ConfigFile, section: String, base_dir: String) -> Dictionary[String, Variant]:
+		if config_file.has_section_key(section, "copy"):
+			var copyfile := config_file.get_value(section, "copy")
+			config_file = ConfigFile.new()
+			config_file.load(base_dir.path_join("..").path_join(copyfile).path_join("Mapping.cfg"))
+		
+		var ret: Dictionary[String, Variant]
+		for key in config_file.get_section_keys(section):
+			ret[key] = config_file.get_value(section, key)
+		
+		return ret
+	
 	func generate_start():
 		current_index = 0
 	
@@ -284,22 +296,13 @@ class KeyboardBlueprint extends Blueprint:
 		font_color = Color(file.get_value("info", "font_color"))
 		font_size = file.get_value("info", "font_size")
 		
-		var maplist: PackedStringArray
-		var keycfg := file
-		
-		if file.has_section_key("keys", "copy"):
-			keycfg = ConfigFile.new()
-			keycfg.load(base_dir.path_join("..").path_join(file.get_value("keys", "copy")).path_join("Mapping.cfg"))
-			maplist = keycfg.get_section_keys("keys")
-		else:
-			maplist = file.get_section_keys("keys")
-		
+		var maplist := get_section(file, "keys", base_dir)
 		mappings.clear()
 		
 		for texname in maplist:
 			var texture: Texture2D = load(base_dir.path_join(texname))
 			
-			var mapping_data: Dictionary = keycfg.get_value("keys", texname)
+			var mapping_data: Dictionary = maplist[texname]
 			for mapping_name: String in mapping_data:
 				var mapping := KeyMapping.new()
 				mapping.base = texture
@@ -385,13 +388,14 @@ class MouseBlueprint extends Blueprint:
 		base_texture = load(base_dir.path_join(file.get_value("info", "base_image")))
 		middle_texture = null
 		
+		var maplist := get_section(file, "buttons", base_dir)
 		var add_button_mapping = func(key: String, button: int):
-			if not file.has_section_key("buttons", key):
+			if not key in maplist:
 				return
 			
 			var mapping := MouseMapping.new()
 			mapping.button = button
-			mapping.image = load(base_dir.path_join(file.get_value("buttons", key)))
+			mapping.image = load(base_dir.path_join(maplist[key]))
 			mappings.append(mapping)
 		
 		add_button_mapping.call("left", MOUSE_BUTTON_LEFT)
@@ -400,13 +404,14 @@ class MouseBlueprint extends Blueprint:
 		add_button_mapping.call("extra1", MOUSE_BUTTON_XBUTTON1)
 		add_button_mapping.call("extra2", MOUSE_BUTTON_XBUTTON2)
 		
+		maplist = get_section(file, "wheel", base_dir)
 		var add_wheel_mapping = func(key: String, button: int):
-			if not file.has_section_key("wheel", key):
+			if not key in maplist:
 				return
 			
 			var mapping := MouseMapping.new()
 			mapping.button = button
-			mapping.image = load(base_dir.path_join(file.get_value("wheel", key)))
+			mapping.image = load(base_dir.path_join(maplist[key]))
 			mappings.append(mapping)
 		
 		add_wheel_mapping.call("up", MOUSE_BUTTON_WHEEL_UP)
