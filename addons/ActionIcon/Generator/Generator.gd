@@ -252,13 +252,17 @@ class Blueprint:
 	var modified_time: int
 	
 	func get_section(config_file: ConfigFile, section: String, base_dir: String) -> Dictionary[String, Variant]:
-		if config_file.has_section_key(section, "copy"):
-			var copyfile := config_file.get_value(section, "copy")
-			config_file = ConfigFile.new()
-			config_file.load(base_dir.path_join("..").path_join(copyfile).path_join("Mapping.cfg"))
-		
 		var ret: Dictionary[String, Variant]
+		
 		for key in config_file.get_section_keys(section):
+			if key == "copy":
+				var copyfile := config_file.get_value(section, key)
+				var copied := ConfigFile.new()
+				copied.load(base_dir.path_join("..").path_join(copyfile).path_join("Mapping.cfg"))
+				ret.merge(get_section(copied, section, base_dir))
+				
+				continue
+			
 			ret[key] = config_file.get_value(section, key)
 		
 		return ret
@@ -442,5 +446,92 @@ class MouseBlueprint extends Blueprint:
 		return true
 
 class JoypadBlueprint extends Blueprint:
+	class JoypadMapping:
+		var button: int
+		var image: Texture2D
+		var image2: Texture2D
+		var rotation: float
+	
+	var models: PackedStringArray
+	var mappings: Array[JoypadMapping]
+	
 	func _init() -> void:
 		type = Type.JOYPAD
+	
+	func _load_data(file: ConfigFile, base_dir: String) -> void:
+		models = file.get_value("info", "models")
+		
+		var maplist := get_section(file, "buttons", base_dir)
+		var add_button_mapping = func(key: String, button: int):
+			if not key in maplist:
+				return
+			
+			var mapping := JoypadMapping.new()
+			mapping.button = button
+			mapping.image = load(base_dir.path_join(maplist[key]))
+			mappings.append(mapping)
+		
+		add_button_mapping.call("A", JOY_BUTTON_A)
+		add_button_mapping.call("B", JOY_BUTTON_B)
+		add_button_mapping.call("X", JOY_BUTTON_X)
+		add_button_mapping.call("Y", JOY_BUTTON_Y)
+		
+		add_button_mapping.call("L1", JOY_BUTTON_LEFT_SHOULDER)
+		add_button_mapping.call("L2", JOY_AXIS_TRIGGER_LEFT)
+		add_button_mapping.call("L3", JOY_BUTTON_LEFT_STICK)
+		add_button_mapping.call("R1", JOY_BUTTON_RIGHT_SHOULDER)
+		add_button_mapping.call("L2", JOY_AXIS_TRIGGER_RIGHT)
+		add_button_mapping.call("R3", JOY_BUTTON_RIGHT_STICK)
+		
+		add_button_mapping.call("Back", JOY_BUTTON_BACK)
+		add_button_mapping.call("Start", JOY_BUTTON_START)
+		add_button_mapping.call("Guide", JOY_BUTTON_GUIDE)
+		add_button_mapping.call("Misc1", JOY_BUTTON_MISC1)
+		add_button_mapping.call("Misc2", JOY_BUTTON_MISC2)
+		add_button_mapping.call("Misc3", JOY_BUTTON_MISC3)
+		add_button_mapping.call("Misc4", JOY_BUTTON_MISC4)
+		add_button_mapping.call("Misc5", JOY_BUTTON_MISC5)
+		add_button_mapping.call("Misc6", JOY_BUTTON_MISC6)
+		
+		add_button_mapping.call("Paddle1", JOY_BUTTON_PADDLE1)
+		add_button_mapping.call("Paddle2", JOY_BUTTON_PADDLE2)
+		add_button_mapping.call("Paddle3", JOY_BUTTON_PADDLE3)
+		add_button_mapping.call("Paddle4", JOY_BUTTON_PADDLE4)
+		add_button_mapping.call("Touchpad", JOY_BUTTON_TOUCHPAD)
+		
+		maplist = get_section(file, "directions", base_dir)
+		var add_direction_mapping = func(key: String, button: int):
+			if not key in maplist:
+				return
+			
+			var info: Dictionary = maplist[key]
+			var base: Texture2D = load(base_dir.path_join(info["base"]))
+			var dir: Texture2D = load(base_dir.path_join(info["direction"]))
+			
+			for i in 4:
+				var mapping := JoypadMapping.new()
+				mapping.button = button
+				mapping.image = base
+				mapping.image2 = dir
+				const DIRECTIONS = [-PI/2, PI/2, PI, 0]
+				mapping.rotation = DIRECTIONS[i]
+				mapping.button = button + i
+				mappings.append(mapping)
+		
+		add_direction_mapping.call("DPad", JOY_BUTTON_DPAD_UP)
+		add_direction_mapping.call("LeftStick", JOY_AXIS_LEFT_X)
+		add_direction_mapping.call("RightStick", JOY_AXIS_RIGHT_X)
+	
+	func _generate_next(element: Node, binds: Dictionary) -> bool:
+		if current_index == mappings.size():
+			return false
+		
+		var mapping := mappings[current_index]
+		element.base.texture = mapping.image
+		
+		if mapping.image2:
+			element.overlay.texture = mapping.image2
+			element.overlay.offset_transform_rotation = mapping.rotation
+		
+		binds[mapping.button] = current_index
+		return true

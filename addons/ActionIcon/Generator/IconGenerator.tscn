@@ -59,6 +59,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+offset_transform_enabled = true
 stretch_mode = 3
 
 [node name="Overlay2" type="TextureRect" parent="Control" unique_id=131294182]

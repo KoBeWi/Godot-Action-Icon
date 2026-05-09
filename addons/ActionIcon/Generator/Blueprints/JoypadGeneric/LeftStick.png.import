@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b7ve64opf4ed6"
-path="res://.godot/imported/L.png-c378bfa1b3d9e2cc41aa00cf0bae7d6e.ctex"
+uid="uid://cdax1xdd2ulpd"
+path="res://.godot/imported/LeftStick.png-fb61aec7ba7e04ea410844e218d70e23.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ActionIcon/Generator/Blueprints/JoypadXbox/L.png"
-dest_files=["res://.godot/imported/L.png-c378bfa1b3d9e2cc41aa00cf0bae7d6e.ctex"]
+source_file="res://addons/ActionIcon/Generator/Blueprints/JoypadGeneric/LeftStick.png"
+dest_files=["res://.godot/imported/LeftStick.png-fb61aec7ba7e04ea410844e218d70e23.ctex"]
 
 [params]
 
