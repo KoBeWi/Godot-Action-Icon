@@ -325,7 +325,28 @@ class Blueprint:
 			if "base" in data:
 				mapping.base_texture = load(base_dir.path_join(data["base"]))
 			
-			## TODO More keys (text, overlay)
+			if "text" in data:
+				mapping.text = data["text"]
+				
+				if "text_offset" in data:
+					mapping.text_offset = data["text_offset"]
+				
+				if "font" in data:
+					mapping.font = load(base_dir.path_join(data["font"]))
+				
+				if "font_color" in data:
+					mapping.font_color = Color(data["font_color"])
+				
+				if "font_size" in data:
+					mapping.font_color = data["font_size"]
+			
+			for key: String in data:
+				if key.begins_with("overlay"):
+					var overlay = data[key]
+					if overlay is String:
+						mapping.add_overlay(load(base_dir.path_join(overlay)))
+					elif overlay is Dictionary:
+						mapping.add_overlay(load(base_dir.path_join(overlay["image"])), overlay["rotation"])
 			
 			mapping_list.append(mapping)
 	
