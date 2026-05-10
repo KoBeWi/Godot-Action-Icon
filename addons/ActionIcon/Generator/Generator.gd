@@ -10,6 +10,7 @@ extends Node
 
 @onready var viewport: SubViewport = %Viewport
 @onready var viewport_grid: GridContainer = %ViewportGrid
+@onready var model_list: Label = %ModelList
 
 var dialog: ConfirmationDialog
 var blueprint_list: Array[Blueprint]
@@ -110,6 +111,7 @@ func show():
 			Blueprint.Type.JOYPAD:
 				var checkbox := CheckBox.new()
 				checkbox.text = blueprint.name
+				checkbox.pressed.connect(update_models)
 				joypad_sets.add_child(checkbox)
 				
 				var button := Button.new()
@@ -122,6 +124,7 @@ func show():
 					checkbox.disabled = true
 					checkbox.tooltip_text = "Default joypad model must be included."
 	
+	update_models()
 	dialog.popup_centered_ratio(0.8)
 
 func get_blueprint_by_name(bname: String) -> Blueprint:
@@ -167,6 +170,16 @@ func try_update_blueprint(blueprint: Blueprint) -> bool:
 	
 	blueprint._load_data(cfg, full_dir)
 	return true
+
+func update_models():
+	var models: PackedStringArray
+	
+	for node in joypad_sets.get_children():
+		if node is CheckBox and node.button_pressed:
+			var blueprint: JoypadBlueprint = get_blueprint_by_name(node.text)
+			models.append_array(blueprint.models)
+	
+	model_list.text = tr("Included models: %s") % ", ".join(models)
 
 func _confirm_generate() -> void:
 	var base_path: String = ProjectSettings.get_setting(ActionIcon._ACTION_SET_DIR)
@@ -523,8 +536,8 @@ class JoypadBlueprint extends Blueprint:
 				mappings.append(mapping)
 		
 		add_direction_mapping.call("DPad", JOY_BUTTON_DPAD_UP)
-		add_direction_mapping.call("LeftStick", JOY_AXIS_LEFT_X)
-		add_direction_mapping.call("RightStick", JOY_AXIS_RIGHT_X)
+		add_direction_mapping.call("LeftStick", 1000 + JOY_AXIS_LEFT_X)
+		add_direction_mapping.call("RightStick", 1000 + JOY_AXIS_RIGHT_X)
 	
 	func _generate_next(element: Node, binds: Dictionary) -> bool:
 		if current_index == mappings.size():
