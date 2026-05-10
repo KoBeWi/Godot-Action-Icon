@@ -554,3 +554,6 @@ class JoypadBlueprint extends Blueprint:
 		add_direction_mapping.call("RightStick", 1000 + JOY_AXIS_RIGHT_X)
 		
 		super(file, base_dir)
+	
+	func _add_extra_binds(binds: Dictionary):
+		binds["$models"] = models

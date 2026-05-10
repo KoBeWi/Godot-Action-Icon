@@ -1,6 +1,6 @@
 class_name ActionIconCustomActions extends RefCounted
 
-var action_list: Dictionary
+var action_list: Dictionary[StringName, Callable]
 var viewport: SubViewport
 
 func _init() -> void:
@@ -13,19 +13,19 @@ func _initialize():
 func _create_icon_cache():
 	pass
 
-func register_action(action: String, callback: Callable):
+func register_action(action: StringName, callback: Callable):
 	action_list[action] = callback
 
-func get_texture(action_name: String, action_icon: ActionIcon, is_joypad: bool) -> Texture2D:
+func has_action(action: StringName) -> bool:
+	return action in action_list
+
+func get_texture(action_name: String, action_icon: ActionIcon, device: ActionIcon.Device) -> Texture2D:
 	var callable = action_list.get(action_name)
 	if callable:
-		var texture: Texture2D = await callable.call(action_icon, is_joypad)
+		var texture: Texture2D = callable.call(action_icon, device)
 		return texture
 	
 	return null
-
-func has_action(action_name: String) -> bool:
-	return action_name in action_list
 
 func prepare_icon_bake():
 	if viewport:

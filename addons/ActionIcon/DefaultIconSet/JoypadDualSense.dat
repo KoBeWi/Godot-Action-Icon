@@ -22,6 +22,7 @@
 1003: 23,
 1004: 24,
 1005: 25,
+"$models": PackedStringArray("DualSense"),
 "$type": 2,
 "LeftStick": 26,
 "RightStick": 27

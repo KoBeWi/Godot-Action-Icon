@@ -20,6 +20,7 @@
 1003: 21,
 1004: 22,
 1005: 23,
+"$models": PackedStringArray("Xbox 360"),
 "$type": 2,
 "LeftStick": 24,
 "RightStick": 25

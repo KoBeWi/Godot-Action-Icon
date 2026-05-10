@@ -21,6 +21,7 @@
 1003: 22,
 1004: 23,
 1005: 24,
+"$models": PackedStringArray("PS4"),
 "$type": 2,
 "LeftStick": 25,
 "RightStick": 26

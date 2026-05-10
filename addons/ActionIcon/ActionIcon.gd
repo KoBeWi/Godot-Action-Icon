@@ -9,8 +9,22 @@ const _DEFAULT_TEXTURE = preload("uid://cx5x6dyfjq7h8")
 const GROUP_NAME = &"action_icons"
 
 enum Device { KEYBOARD, MOUSE, JOYPAD }
-enum JoypadMode { ADAPTIVE, FORCE_KEYBOARD, FORCE_JOYPAD }
-enum FitMode { CUSTOM, MATCH_WIDTH, MATCH_HEIGHT }
+enum JoypadMode {
+	## Automatically detect if user is using a joypad.
+	ADAPTIVE,
+	## Always show keyboard icons.
+	FORCE_KEYBOARD,
+	## Always show joypad icons.
+	FORCE_JOYPAD
+}
+enum FitMode {
+	## Sizing strategy can be customized with [TextureRect] properties.
+	CUSTOM,
+	## The icon will set its width based on height.
+	MATCH_WIDTH,
+	## The icon will set its height based on width.
+	MATCH_HEIGHT,
+}
 
 ## Action name from InputMap or CUSTOM_ACTIONS.
 @export_custom(PROPERTY_HINT_INPUT_NAME, "show_builtin,loose_mode") var action_name: StringName = &"":
@@ -44,7 +58,7 @@ enum FitMode { CUSTOM, MATCH_WIDTH, MATCH_HEIGHT }
 			if Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 				Input.joy_connection_changed.disconnect(_on_joy_connection_changed)
 		
-			_cached_model = ""
+			_cached_joypad = null
 		refresh()
 
 ## If action has both keyboard and mouse events, this makes mouse icons preferred if available.
@@ -78,7 +92,12 @@ enum FitMode { CUSTOM, MATCH_WIDTH, MATCH_HEIGHT }
 		
 		notify_property_list_changed()
 
-@export_tool_button("Reload Data", "ReloadSmall") var editor_reload_data = func():
+@export_tool_button("Refresh Icon", "ReloadSmall") var editor_refresh_icon = func():
+	refresh()
+
+@export_tool_button("Reload Data", "Close") var editor_reload_data = func():
+	_keyboard_set = null
+	_mouse_set = null
 	_joypad_sets.clear()
 	_custom_actions = null
 	
@@ -92,13 +111,14 @@ static var _use_joypad: bool
 static var _keyboard_set: IconSet
 static var _mouse_set: IconSet
 static var _joypad_sets: Dictionary[String, IconSet]
-static var _custom_actions: RefCounted
+static var _custom_actions: ActionIconCustomActions
 
 var _pending_refresh: bool = true
 var _fit_initialized: bool
-var _cached_model: String
+var _cached_joypad: IconSet
 
 static func _static_init() -> void:
+	## TODO
 	var icon_set_path: String = ProjectSettings.get_setting(_ACTION_SET_SETTING)
 	if not DirAccess.dir_exists_absolute(icon_set_path):
 		icon_set_path = "res://addons/ActionIcon/DefaultIconSet"
@@ -140,7 +160,11 @@ static func initialize_data():
 				_mouse_set = set_object
 			Device.JOYPAD:
 				for model in data["$models"]:
-					_joypad_sets[model] = set_object
+					if not model in _joypad_sets:
+						_joypad_sets[model] = set_object
+				
+				if icon_set == _default_joypad:
+					_default_joypad = data["$models"][0]
 	
 	var custom_actions_path := set_cache_path.path_join("CustomActions.gd")
 	if ResourceLoader.exists(custom_actions_path):
@@ -176,11 +200,22 @@ func _refresh():
 	_pending_refresh = false
 	var is_joypad := joypad_mode == JoypadMode.FORCE_JOYPAD or (joypad_mode == JoypadMode.ADAPTIVE and _use_joypad)
 	
-	if _custom_actions:
-		var action_texture: Texture2D = await _custom_actions.get_texture(action_name, self, is_joypad)
-		if action_texture:
+	if _custom_actions and _custom_actions.has_action(action_name):
+		var device: Device
+		if is_joypad:
+			device = Device.JOYPAD
+		elif favor_mouse:
+			device = Device.MOUSE
+		else:
+			device = Device.KEYBOARD
+		
+		var action_texture := _custom_actions.get_texture(action_name, self, device)
+		if not action_texture:
+			push_warning("Custom action \"%s\" has empty texture." % action_name)
+			texture = _DEFAULT_TEXTURE
+		else:
 			texture = action_texture
-			return
+		return
 	
 	if action_name.is_empty():
 		texture = _DEFAULT_TEXTURE
@@ -232,44 +267,29 @@ func _refresh():
 static func _get_keyboard(key: int) -> Texture2D:
 	return get_set_icon(_keyboard_set, _keyboard_set.mapping.get(key, -1))
 
-func _get_joypad_model(device: int) -> String:
-	if not _cached_model.is_empty():
-		return _cached_model
+func _get_joypad_set(device: int) -> IconSet:
+	if _cached_joypad:
+		return _cached_joypad
 	
+	var data: IconSet
 	var device_name := Input.get_joy_name(maxi(device, 0))
-	var model := _default_joypad
+	if device_name in _joypad_sets:
+		data = _joypad_sets[device_name]
+	else:
+		push_warning("Joypad model \"%s\" not found in registered icon sets. Using default set." % device_name)
+		data = _joypad_sets[_default_joypad]
 	
-	#for icon_set in _icon_sets:
-		#var found: bool
-		#var set_data: Dictionary = _icon_sets[icon_set]
-		#
-		#if set_data["type"] == "joypad":
-			#for pattern in set_data["joypad_model"]:
-				#if device_name.contains(pattern):
-					#model = icon_set
-					#found = true
-					#break
-		#
-		#if found:
-			#break
-	
-	_cached_model = model
-	return model
+	_cached_joypad = data
+	return data
 
 func _get_joypad(button: int, device: int) -> Texture2D:
-	var model := _get_joypad_model(device)
-	#var icon_set: Dictionary = _icon_sets[model]
-	return null
-	#return get_set_icon(icon_set, icon_set.get(button, -1))
+	var icon_set := _get_joypad_set(device)
+	return get_set_icon(icon_set, icon_set.mapping.get(button, -1))
 
 func _get_joypad_axis(axis: int, value: float, device: int) -> Texture2D:
-	var model := _get_joypad_model(device)
-	
-	var id: int = axis + 2000 + 1000 * value
-	
-	#var icon_set: Dictionary = _icon_sets[model]
-	return null
-	#return get_set_icon(icon_set, icon_set.get(id, -1))
+	var icon_set := _get_joypad_set(device)
+	var id: int = axis + 2000 + 1000 * value ## wrong
+	return get_set_icon(icon_set, icon_set.mapping.get(id, -1))
 
 func _get_mouse(button: int) -> Texture2D:
 	#match button:
@@ -291,7 +311,7 @@ func _get_mouse(button: int) -> Texture2D:
 
 func _on_joy_connection_changed(device: int, connected: bool):
 	if connected:
-		_cached_model = ""
+		_cached_joypad = null
 		refresh()
 
 func _input(event: InputEvent) -> void:
