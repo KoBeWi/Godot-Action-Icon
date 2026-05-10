@@ -96,6 +96,10 @@ size_flags_horizontal = 4
 theme_type_variation = &"HeaderLarge"
 text = "Select icon sets to include"
 
+[node name="HSeparator" type="HSeparator" parent="Dialog/VBoxContainer" unique_id=1884700709]
+layout_mode = 2
+theme_override_constants/separation = 0
+
 [node name="ScrollContainer" type="ScrollContainer" parent="Dialog/VBoxContainer" unique_id=587593333]
 layout_mode = 2
 size_flags_vertical = 3

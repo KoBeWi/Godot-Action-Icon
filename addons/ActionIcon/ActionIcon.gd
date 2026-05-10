@@ -8,7 +8,7 @@ const _DEFAULT_TEXTURE = preload("uid://cx5x6dyfjq7h8")
 
 const GROUP_NAME = &"action_icons"
 
-enum { KEYBOARD, MOUSE, JOYPAD }
+enum Device { KEYBOARD, MOUSE, JOYPAD }
 enum JoypadMode { ADAPTIVE, FORCE_KEYBOARD, FORCE_JOYPAD }
 enum FitMode { CUSTOM, MATCH_WIDTH, MATCH_HEIGHT }
 
@@ -132,11 +132,11 @@ static func initialize_data():
 				set_object.mapping[key] = data[key]
 		
 		match data["$type"]:
-			KEYBOARD:
+			Device.KEYBOARD:
 				_keyboard_set = set_object
-			MOUSE:
+			Device.MOUSE:
 				_mouse_set = set_object
-			JOYPAD:
+			Device.JOYPAD:
 				for model in data["$models"]:
 					_joypad_sets[model] = set_object
 	

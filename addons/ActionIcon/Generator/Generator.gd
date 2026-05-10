@@ -81,50 +81,49 @@ func show():
 	
 	var preview_icon := EditorInterface.get_editor_theme().get_icon(&"Search", &"EditorIcons")
 	for blueprint in blueprint_list:
-		match blueprint.type:
-			Blueprint.Type.KEYBOARD:
-				var checkbox := CheckBox.new()
-				checkbox.text = blueprint.name
-				checkbox.button_group = keyboard_group
-				keyboard_sets.add_child(checkbox)
-				
-				var button := Button.new()
-				button.icon = preview_icon
-				keyboard_sets.add_child(button)
-				button.pressed.connect(preview_blueprint.bind(blueprint))
-				
-				if keyboard_sets.get_child_count() == 2:
-					checkbox.button_pressed = true
+		if blueprint is KeyboardBlueprint:
+			var checkbox := CheckBox.new()
+			checkbox.text = blueprint.name
+			checkbox.button_group = keyboard_group
+			keyboard_sets.add_child(checkbox)
 			
-			Blueprint.Type.MOUSE:
-				var checkbox := CheckBox.new()
-				checkbox.text = blueprint.name
-				checkbox.button_group = mouse_group
-				mouse_sets.add_child(checkbox)
-				
-				var button := Button.new()
-				button.icon = preview_icon
-				mouse_sets.add_child(button)
-				button.pressed.connect(preview_blueprint.bind(blueprint))
-				
-				if mouse_sets.get_child_count() == 2:
-					checkbox.button_pressed = true
+			var button := Button.new()
+			button.icon = preview_icon
+			keyboard_sets.add_child(button)
+			button.pressed.connect(preview_blueprint.bind(blueprint))
 			
-			Blueprint.Type.JOYPAD:
-				var checkbox := CheckBox.new()
-				checkbox.text = blueprint.name
-				checkbox.pressed.connect(update_models)
-				joypad_sets.add_child(checkbox)
-				
-				var button := Button.new()
-				button.icon = preview_icon
-				joypad_sets.add_child(button)
-				button.pressed.connect(preview_blueprint.bind(blueprint))
-				
-				if blueprint.name == default_joypad:
-					checkbox.button_pressed = true
-					checkbox.disabled = true
-					checkbox.tooltip_text = "Default joypad model must be included."
+			if keyboard_sets.get_child_count() == 2:
+				checkbox.button_pressed = true
+			
+		elif blueprint is MouseBlueprint:
+			var checkbox := CheckBox.new()
+			checkbox.text = blueprint.name
+			checkbox.button_group = mouse_group
+			mouse_sets.add_child(checkbox)
+			
+			var button := Button.new()
+			button.icon = preview_icon
+			mouse_sets.add_child(button)
+			button.pressed.connect(preview_blueprint.bind(blueprint))
+			
+			if mouse_sets.get_child_count() == 2:
+				checkbox.button_pressed = true
+		
+		elif blueprint is JoypadBlueprint:
+			var checkbox := CheckBox.new()
+			checkbox.text = blueprint.name
+			checkbox.pressed.connect(update_models)
+			joypad_sets.add_child(checkbox)
+			
+			var button := Button.new()
+			button.icon = preview_icon
+			joypad_sets.add_child(button)
+			button.pressed.connect(preview_blueprint.bind(blueprint))
+			
+			if blueprint.name == default_joypad:
+				checkbox.button_pressed = true
+				checkbox.disabled = true
+				checkbox.tooltip_text = "Default joypad model must be included."
 	
 	update_models()
 	dialog.popup_centered_ratio(0.8)
@@ -145,7 +144,7 @@ func preview_blueprint(blueprint: Blueprint):
 	
 	current_previewed = blueprint
 	
-	blueprint._generate(preview, {})
+	generate_blueprint(blueprint, preview, {})
 
 func try_update_blueprint(blueprint: Blueprint) -> bool:
 	var full_dir := main_dir.get_current_dir().path_join(blueprint.name)
@@ -160,6 +159,7 @@ func try_update_blueprint(blueprint: Blueprint) -> bool:
 	var cfg := ConfigFile.new()
 	cfg.load(full_path)
 	
+	blueprint.mapping_list.clear()
 	blueprint._load_data(cfg, full_dir)
 	return true
 
@@ -177,6 +177,29 @@ func create_element() -> Control:
 	var element: Control = preload("uid://dels8j71udktn").instantiate()
 	element.custom_minimum_size = base_size
 	return element
+
+func generate_blueprint(blueprint: Blueprint, parent: Node, binds: Dictionary):
+	var idx: int
+	for mapping in blueprint.mapping_list:
+		binds[mapping.key] = idx
+		idx += 1
+		
+		var element := create_element()
+		element.base.texture = mapping.base_texture
+		
+		if not mapping.text.is_empty():
+			var element_label: Label = element.label
+			element_label.add_theme_font_size_override(&"font_size", mapping.font_size)
+			element_label.add_theme_font_override(&"font", mapping.font)
+			element_label.add_theme_color_override(&"font_color", mapping.font_color)
+			element_label.text = mapping.text
+			element_label.offset_transform_position = mapping.text_offset
+		
+		for custom_texture in mapping.overlays:
+			var trect: TextureRect = element.add_texture(custom_texture.image)
+			trect.offset_transform_rotation = custom_texture.rotation
+		
+		parent.add_child(element)
 
 func _confirm_generate() -> void:
 	var base_path: String = ProjectSettings.get_setting(ActionIcon._ACTION_SET_DIR)
@@ -200,7 +223,8 @@ func _confirm_generate() -> void:
 		for node in viewport_grid.get_children():
 			node.free()
 		
-		blueprint._generate(viewport_grid, binds)
+		generate_blueprint(blueprint, viewport_grid, binds)
+		blueprint._add_extra_binds(binds)
 		
 		viewport_grid.reset_size()
 		viewport.size = viewport_grid.size
@@ -241,14 +265,32 @@ func _on_dialog_focus_entered() -> void:
 			preview_blueprint(current_previewed)
 
 class Blueprint:
-	enum Type { KEYBOARD, MOUSE, JOYPAD }
+	class Mapping:
+		class CustomTexture:
+			var image: Texture2D
+			var rotation: float
+		
+		var key: Variant
+		
+		var base_texture: Texture2D
+		var text: String
+		var text_offset: Vector2
+		var font: Font
+		var font_color: Color
+		var font_size: int
+		var overlays: Array[CustomTexture]
+		
+		func add_overlay(texture: Texture2D, rotation := 0):
+			var ct := CustomTexture.new()
+			ct.image = texture
+			ct.rotation = rotation * (PI / 2)
+			overlays.append(ct)
 	
-	static var make_element: Callable
+	static var make_element##
 	
 	var name: String
-	var type: Type
-	
 	var modified_time: int
+	var mapping_list: Array[Mapping]
 	
 	func get_section(config_file: ConfigFile, section: String, base_dir: String) -> Dictionary[String, Variant]:
 		var ret: Dictionary[String, Variant]
@@ -272,33 +314,18 @@ class Blueprint:
 	func _load_data(file: ConfigFile, base_dir: String) -> void:
 		pass
 	
-	func _generate(parent: Node, binds: Dictionary) -> void:
+	func _add_extra_binds(binds: Dictionary):
 		pass
 
 class KeyboardBlueprint extends Blueprint:
-	class KeyMapping:
-		var keycode: int
-		var base: Texture2D
-		var text: String
-		var text_offset: Vector2
-		var font: Font
-		var font_size: int
-		var font_color := Color.TRANSPARENT
-		var image: Texture2D
-	
 	var font: Font
 	var font_color: Color
 	var font_size: int
-	var mappings: Array[KeyMapping]
-	
-	func _init() -> void:
-		type = Type.KEYBOARD
 	
 	func _load_data(file: ConfigFile, base_dir: String) -> void:
 		font = load(base_dir.path_join(file.get_value("info", "font")))
 		font_color = Color(file.get_value("info", "font_color"))
 		font_size = file.get_value("info", "font_size")
-		mappings.clear()
 		
 		var maplist := get_section(file, "keys", base_dir)
 		for texname in maplist:
@@ -306,11 +333,16 @@ class KeyboardBlueprint extends Blueprint:
 			
 			var mapping_data: Dictionary = maplist[texname]
 			for mapping_name: String in mapping_data:
-				var mapping := KeyMapping.new()
-				mapping.base = texture
-				mapping.keycode = OS.find_keycode_from_string(mapping_name)
-				if mapping.keycode == KEY_NONE:
+				var mapping := Mapping.new()
+				mapping.key = OS.find_keycode_from_string(mapping_name)
+				
+				if mapping.key == KEY_NONE:
 					push_warning("Unrecognized keycode name: %s" % mapping_name)
+				
+				mapping.base_texture = texture
+				mapping.font = font
+				mapping.font_color = font_color
+				mapping.font_size = font_size
 				
 				var mapping_value: Variant = mapping_data[mapping_name]
 				if mapping_value is int:
@@ -320,7 +352,7 @@ class KeyboardBlueprint extends Blueprint:
 				elif mapping_value is Dictionary:
 					mapping.text = mapping_value.get("text", mapping.text)
 					mapping.text_offset = mapping_value.get("text_offset", mapping.text_offset)
-					mapping.font_color = mapping_value.get("font_color", mapping.font_color)
+					mapping.font_color = mapping_value.get("font_color", font_color)
 					
 					if mapping_value.has("font_size"):
 						mapping.font_size = mapping_value["font_size"]
@@ -328,35 +360,21 @@ class KeyboardBlueprint extends Blueprint:
 						mapping.font_size = roundi(font_size * mapping_value["font_percent"] * 0.01)
 					elif mapping_value.has("font_ratio"):
 						mapping.font_size = roundi(font_size * mapping_value["font_ratio"])
+					else:
+						mapping.font_size = font_size
 					
 					if mapping_value.has("font"):
 						mapping.font = load(base_dir.path_join(mapping["font"]))
+					else:
+						mapping.font = font
 					
 					var image_name: String = mapping_value.get("image", "")
 					if not image_name.is_empty():
-						mapping.image = load(base_dir.path_join(image_name))
+						mapping.add_overlay(load(base_dir.path_join(image_name)))
 				
-				mappings.append(mapping)
+				mapping_list.append(mapping)
 	
-	func _generate(parent: Node, binds: Dictionary) -> void:
-		var idx: int
-		for key in mappings:
-			binds[key.keycode] = idx
-			idx += 1
-			
-			var element = make_element.call()
-			element.base.texture = key.base
-			
-			var element_label: Label = element.label
-			element_label.add_theme_font_size_override(&"font_size", key.font_size if key.font_size != 0 else font_size)
-			element_label.add_theme_font_override(&"font", key.font if key.font else font)
-			element_label.add_theme_color_override(&"font_color", key.font_color if key.font_color.a > 0 else font_color)
-			element_label.text = key.text
-			element_label.offset_transform_position = key.text_offset
-			
-			element.add_texture(key.image)
-			parent.add_child(element)
-		
+	func _add_extra_binds(binds: Dictionary) -> void:
 		automap(binds, KEY_KP_0, KEY_0)
 		automap(binds, KEY_KP_1, KEY_1)
 		automap(binds, KEY_KP_2, KEY_2)
@@ -375,101 +393,67 @@ class KeyboardBlueprint extends Blueprint:
 			binds[from] = binds[to]
 
 class MouseBlueprint extends Blueprint:
-	class MouseMapping:
-		var button: int
-		var image: Texture2D
-	
-	var base_texture: Texture2D
-	var middle_texture: Texture2D
-	var mappings: Array[MouseMapping]
-	
-	func _init() -> void:
-		type = Type.MOUSE
-
 	func _load_data(file: ConfigFile, base_dir: String) -> void:
-		base_texture = load(base_dir.path_join(file.get_value("info", "base_image")))
-		middle_texture = null
-		mappings.clear()
+		var base_texture: Texture2D = load(base_dir.path_join(file.get_value("info", "base_image")))
+		var middle_texture: Texture2D
 		
 		var maplist := get_section(file, "buttons", base_dir)
-		var add_button_mapping = func(key: String, button: int):
+		var add_button_mapping = func(key: String, button: int) -> bool:
 			if not key in maplist:
-				return
+				return false
 			
-			var mapping := MouseMapping.new()
-			mapping.button = button
-			mapping.image = load(base_dir.path_join(maplist[key]))
-			mappings.append(mapping)
+			var mapping := Mapping.new()
+			mapping.key = button
+			mapping.base_texture = base_texture
+			mapping.add_overlay(load(base_dir.path_join(maplist[key])))
+			mapping_list.append(mapping)
+			
+			return true
 		
 		add_button_mapping.call("left", MOUSE_BUTTON_LEFT)
 		add_button_mapping.call("right", MOUSE_BUTTON_RIGHT)
-		add_button_mapping.call("middle", MOUSE_BUTTON_MIDDLE)
+		if add_button_mapping.call("middle", MOUSE_BUTTON_MIDDLE):
+			var mapping := mapping_list[-1]
+			middle_texture = mapping.overlays[0].image
+		
 		add_button_mapping.call("extra1", MOUSE_BUTTON_XBUTTON1)
 		add_button_mapping.call("extra2", MOUSE_BUTTON_XBUTTON2)
 		
 		maplist = get_section(file, "wheel", base_dir)
+		if not middle_texture and not maplist.is_empty():
+			push_warning("No middle button defined, wheel images will be incomplete.")
+		
 		var add_wheel_mapping = func(key: String, button: int):
 			if not key in maplist:
 				return
 			
-			var mapping := MouseMapping.new()
-			mapping.button = button
-			mapping.image = load(base_dir.path_join(maplist[key]))
-			mappings.append(mapping)
+			var mapping := Mapping.new()
+			mapping.key = button
+			mapping.base_texture = base_texture
+			mapping.add_overlay(middle_texture)
+			mapping.add_overlay(load(base_dir.path_join(maplist[key])))
+			mapping_list.append(mapping)
 		
 		add_wheel_mapping.call("up", MOUSE_BUTTON_WHEEL_UP)
 		add_wheel_mapping.call("down", MOUSE_BUTTON_WHEEL_DOWN)
 		add_wheel_mapping.call("right", MOUSE_BUTTON_WHEEL_RIGHT)
 		add_wheel_mapping.call("left", MOUSE_BUTTON_WHEEL_LEFT)
-	
-	func _generate(parent: Node, binds: Dictionary) -> void:
-		var idx: int
-		for mapping in mappings:
-			binds[mapping.button] = idx
-			idx += 1
-			
-			var element = make_element.call()
-			element.base.texture = base_texture
-			
-			if mapping.button >= MOUSE_BUTTON_WHEEL_UP and mapping.button <= MOUSE_BUTTON_WHEEL_RIGHT:
-				if not middle_texture:
-					push_warning("No middle button defined, wheel image will be incomplete.")
-				
-				element.add_texture(middle_texture)
-			
-			element.add_texture(mapping.image)
-			
-			if mapping.button == MOUSE_BUTTON_MIDDLE:
-				middle_texture = mapping.image
-			
-			parent.add_child(element)
 
 class JoypadBlueprint extends Blueprint:
-	class JoypadMapping:
-		var button: int
-		var image: Texture2D
-		var image2: Texture2D
-		var rotation: float
-	
 	var models: PackedStringArray
-	var mappings: Array[JoypadMapping]
-	
-	func _init() -> void:
-		type = Type.JOYPAD
 	
 	func _load_data(file: ConfigFile, base_dir: String) -> void:
 		models = file.get_value("info", "models")
-		mappings.clear()
 		
 		var maplist := get_section(file, "buttons", base_dir)
 		var add_button_mapping = func(key: String, button: int):
 			if not key in maplist:
 				return
 			
-			var mapping := JoypadMapping.new()
-			mapping.button = button
-			mapping.image = load(base_dir.path_join(maplist[key]))
-			mappings.append(mapping)
+			var mapping := Mapping.new()
+			mapping.key = button
+			mapping.base_texture = load(base_dir.path_join(maplist[key]))
+			mapping_list.append(mapping)
 		
 		add_button_mapping.call("A", JOY_BUTTON_A)
 		add_button_mapping.call("B", JOY_BUTTON_B)
@@ -509,30 +493,15 @@ class JoypadBlueprint extends Blueprint:
 			var dir: Texture2D = load(base_dir.path_join(info["direction"]))
 			
 			for i in 4:
-				var mapping := JoypadMapping.new()
-				mapping.button = button
-				mapping.image = base
-				mapping.image2 = dir
-				const DIRECTIONS = [-PI/2, PI/2, PI, 0]
-				mapping.rotation = DIRECTIONS[i]
-				mapping.button = button + i
-				mappings.append(mapping)
+				var mapping := Mapping.new()
+				mapping.key = button + i
+				mapping.base_texture = base
+				
+				const DIRECTIONS = [3, 1, 2, 0]
+				mapping.add_overlay(dir, DIRECTIONS[i])
+				
+				mapping_list.append(mapping)
 		
 		add_direction_mapping.call("DPad", JOY_BUTTON_DPAD_UP)
 		add_direction_mapping.call("LeftStick", 1000 + JOY_AXIS_LEFT_X)
 		add_direction_mapping.call("RightStick", 1000 + JOY_AXIS_RIGHT_X)
-	
-	func _generate(parent: Node, binds: Dictionary) -> void:
-		var idx: int
-		for mapping in mappings:
-			binds[mapping.button] = idx
-			idx += 1
-			
-			var element = make_element.call()
-			element.base.texture = mapping.image
-			
-			if mapping.image2:
-				var trect: TextureRect = element.add_texture(mapping.image2)
-				trect.offset_transform_rotation = mapping.rotation
-			
-			parent.add_child(element)
