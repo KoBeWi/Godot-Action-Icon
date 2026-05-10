@@ -312,7 +312,22 @@ class Blueprint:
 		return ret
 	
 	func _load_data(file: ConfigFile, base_dir: String) -> void:
-		pass
+		if not file.has_section("custom"):
+			return
+		
+		var customs := get_section(file, "custom", base_dir)
+		for custom_name in customs:
+			var data: Dictionary = customs[custom_name]
+			
+			var mapping := Mapping.new()
+			mapping.key = custom_name
+			
+			if "base" in data:
+				mapping.base_texture = load(base_dir.path_join(data["base"]))
+			
+			## TODO More keys (text, overlay)
+			
+			mapping_list.append(mapping)
 	
 	func _add_extra_binds(binds: Dictionary):
 		pass
@@ -373,6 +388,8 @@ class KeyboardBlueprint extends Blueprint:
 						mapping.add_overlay(load(base_dir.path_join(image_name)))
 				
 				mapping_list.append(mapping)
+		
+		super(file, base_dir)
 	
 	func _add_extra_binds(binds: Dictionary) -> void:
 		automap(binds, KEY_KP_0, KEY_0)
@@ -438,6 +455,8 @@ class MouseBlueprint extends Blueprint:
 		add_wheel_mapping.call("down", MOUSE_BUTTON_WHEEL_DOWN)
 		add_wheel_mapping.call("right", MOUSE_BUTTON_WHEEL_RIGHT)
 		add_wheel_mapping.call("left", MOUSE_BUTTON_WHEEL_LEFT)
+		
+		super(file, base_dir)
 
 class JoypadBlueprint extends Blueprint:
 	var models: PackedStringArray
@@ -505,3 +524,5 @@ class JoypadBlueprint extends Blueprint:
 		add_direction_mapping.call("DPad", JOY_BUTTON_DPAD_UP)
 		add_direction_mapping.call("LeftStick", 1000 + JOY_AXIS_LEFT_X)
 		add_direction_mapping.call("RightStick", 1000 + JOY_AXIS_RIGHT_X)
+		
+		super(file, base_dir)
