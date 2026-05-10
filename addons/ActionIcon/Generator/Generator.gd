@@ -202,7 +202,9 @@ func generate_blueprint(blueprint: Blueprint, parent: Node, binds: Dictionary):
 		parent.add_child(element)
 
 func _confirm_generate() -> void:
-	var base_path: String = ProjectSettings.get_setting(ActionIcon._ACTION_SET_DIR)
+	var base_path: String = ProjectSettings.get_setting(ActionIcon._ACTION_SET_SETTING)
+	DirAccess.make_dir_absolute(base_path)
+	
 	var set_list: PackedStringArray
 	
 	var selected_blueprints: PackedStringArray
@@ -218,7 +220,12 @@ func _confirm_generate() -> void:
 		set_list.append(blueprint.name)
 		
 		var binds: Dictionary
-		binds["$type"] = blueprint.type
+		if blueprint is KeyboardBlueprint:
+			binds["$type"] = ActionIcon.Device.KEYBOARD
+		elif blueprint is MouseBlueprint:
+			binds["$type"] = ActionIcon.Device.MOUSE
+		elif blueprint is JoypadBlueprint:
+			binds["$type"] = ActionIcon.Device.JOYPAD
 		
 		for node in viewport_grid.get_children():
 			node.free()
@@ -238,13 +245,13 @@ func _confirm_generate() -> void:
 		var f := FileAccess.open(path, FileAccess.WRITE)
 		f.store_string(var_to_str(binds))
 		f.close()
-		
-		EditorInterface.get_resource_filesystem().update_file(path)
 	
 	var config := ConfigFile.new()
 	config.load("res://addons/ActionIcon/Generator/Blueprints/Config.cfg")
 	config.set_value("config", "set_list", set_list)
 	config.save(base_path.path_join("Config.cfg"))
+	
+	EditorInterface.get_resource_filesystem().scan()
 
 func _on_dialog_visibility_changed() -> void:
 	if dialog.visible:

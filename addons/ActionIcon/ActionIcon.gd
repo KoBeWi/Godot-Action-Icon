@@ -3,7 +3,7 @@
 class_name ActionIcon extends TextureRect
 
 const _SHEET_COLUMNS = 10
-const _ACTION_SET_DIR = "addons/action_icon/action_set_directory"
+const _ACTION_SET_SETTING = "addons/action_icon/action_set_directory"
 const _DEFAULT_TEXTURE = preload("uid://cx5x6dyfjq7h8")
 
 const GROUP_NAME = &"action_icons"
@@ -99,10 +99,12 @@ var _fit_initialized: bool
 var _cached_model: String
 
 static func _static_init() -> void:
-	var set_cache_path: String = ProjectSettings.get_setting(_ACTION_SET_DIR)
+	var icon_set_path: String = ProjectSettings.get_setting(_ACTION_SET_SETTING)
+	if not DirAccess.dir_exists_absolute(icon_set_path):
+		icon_set_path = "res://addons/ActionIcon/DefaultIconSet"
 	
 	var cfg := ConfigFile.new()
-	cfg.load(set_cache_path.path_join("Config.cfg"))
+	cfg.load(icon_set_path.path_join("Config.cfg"))
 	_default_joypad = cfg.get_value("config", "default_joypad")
 	if cfg.get_value("config", "load_automatically"):
 		initialize_data()
@@ -111,7 +113,7 @@ static func _static_init() -> void:
 
 ## Call it once to load the icon data, but only if [code]load_automatically[/code] is disabled in the config.
 static func initialize_data():
-	var set_cache_path: String = ProjectSettings.get_setting(_ACTION_SET_DIR)
+	var set_cache_path: String = ProjectSettings.get_setting(_ACTION_SET_SETTING)
 	
 	var cfg := ConfigFile.new()
 	cfg.load(set_cache_path.path_join("Config.cfg"))
