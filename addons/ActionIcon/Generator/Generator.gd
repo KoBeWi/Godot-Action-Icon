@@ -354,7 +354,7 @@ class KeyboardBlueprint extends Blueprint:
 			element_label.text = key.text
 			element_label.offset_transform_position = key.text_offset
 			
-			element.overlay.texture = key.image
+			element.add_texture(key.image)
 			parent.add_child(element)
 		
 		automap(binds, KEY_KP_0, KEY_0)
@@ -435,10 +435,9 @@ class MouseBlueprint extends Blueprint:
 				if not middle_texture:
 					push_warning("No middle button defined, wheel image will be incomplete.")
 				
-				element.overlay.texture = middle_texture
-				element.overlay2.texture = mapping.image
-			else:
-				element.overlay.texture = mapping.image
+				element.add_texture(middle_texture)
+			
+			element.add_texture(mapping.image)
 			
 			if mapping.button == MOUSE_BUTTON_MIDDLE:
 				middle_texture = mapping.image
@@ -533,7 +532,7 @@ class JoypadBlueprint extends Blueprint:
 			element.base.texture = mapping.image
 			
 			if mapping.image2:
-				element.overlay.texture = mapping.image2
-				element.overlay.offset_transform_rotation = mapping.rotation
+				var trect: TextureRect = element.add_texture(mapping.image2)
+				trect.offset_transform_rotation = mapping.rotation
 			
 			parent.add_child(element)

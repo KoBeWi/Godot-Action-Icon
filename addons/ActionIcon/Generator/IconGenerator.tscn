@@ -6,15 +6,23 @@ extends MarginContainer
 
 var base: TextureRect
 var label: Label
-var overlay: TextureRect
-var overlay2: TextureRect
+var overlay_parent: Node
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SCENE_INSTANTIATED:
 		base = %Base
 		label = %Text
-		overlay = %Overlay
-		overlay2 = %Overlay2
+		overlay_parent = $Control
+
+func add_texture(texture: Texture2D) -> TextureRect:
+	var trect := TextureRect.new()
+	trect.texture = texture
+	trect.offset_transform_enabled = true
+	trect.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
+	overlay_parent.add_child(trect)
+	trect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	
+	return trect
 "
 
 [node name="IconGenerator" type="MarginContainer" unique_id=689429734]
@@ -60,14 +68,4 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 offset_transform_enabled = true
-stretch_mode = 3
-
-[node name="Overlay2" type="TextureRect" parent="Control" unique_id=131294182]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 stretch_mode = 3
