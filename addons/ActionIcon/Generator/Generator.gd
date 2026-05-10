@@ -26,6 +26,8 @@ var mouse_group := ButtonGroup.new()
 func _notification(what: int) -> void:
 	match what:
 		NOTIFICATION_SCENE_INSTANTIATED:
+			Blueprint.make_element = create_element
+			
 			main_dir = DirAccess.open("res://addons/ActionIcon/Generator/Blueprints")
 			
 			dialog = %Dialog
@@ -143,17 +145,7 @@ func preview_blueprint(blueprint: Blueprint):
 	
 	current_previewed = blueprint
 	
-	blueprint.generate_start()
-	while true:
-		var element: Control = preload("uid://dels8j71udktn").instantiate()
-		element.custom_minimum_size = base_size
-		
-		if not blueprint._generate_next(element, {}):
-			element.free()
-			break
-		
-		preview.add_child(element)
-		blueprint.current_index += 1
+	blueprint._generate(preview, {})
 
 func try_update_blueprint(blueprint: Blueprint) -> bool:
 	var full_dir := main_dir.get_current_dir().path_join(blueprint.name)
@@ -181,6 +173,11 @@ func update_models():
 	
 	model_list.text = tr("Included models: %s") % ", ".join(models)
 
+func create_element() -> Control:
+	var element: Control = preload("uid://dels8j71udktn").instantiate()
+	element.custom_minimum_size = base_size
+	return element
+
 func _confirm_generate() -> void:
 	var base_path: String = ProjectSettings.get_setting(ActionIcon._ACTION_SET_DIR)
 	var set_list: PackedStringArray
@@ -194,8 +191,6 @@ func _confirm_generate() -> void:
 	
 	for blueprint_name in selected_blueprints:
 		var blueprint := get_blueprint_by_name(blueprint_name)
-		if blueprint is not KeyboardBlueprint:##
-			continue
 		
 		set_list.append(blueprint.name)
 		
@@ -205,21 +200,11 @@ func _confirm_generate() -> void:
 		for node in viewport_grid.get_children():
 			node.free()
 		
-		blueprint.generate_start()
-		while true:
-			var element: Control = preload("uid://dels8j71udktn").instantiate()
-			element.custom_minimum_size = base_size
-			
-			if not blueprint._generate_next(element, binds):
-				element.free()
-				break
-			
-			viewport_grid.add_child(element)
-			blueprint.current_index += 1
+		blueprint._generate(viewport_grid, binds)
 		
 		viewport_grid.reset_size()
-		
 		viewport.size = viewport_grid.size
+		
 		var sheet: Image = await viewport.print_image()
 		
 		var path := base_path.path_join("%s.png" % blueprint.name)
@@ -258,10 +243,11 @@ func _on_dialog_focus_entered() -> void:
 class Blueprint:
 	enum Type { KEYBOARD, MOUSE, JOYPAD }
 	
+	static var make_element: Callable
+	
 	var name: String
 	var type: Type
 	
-	var current_index: int
 	var modified_time: int
 	
 	func get_section(config_file: ConfigFile, section: String, base_dir: String) -> Dictionary[String, Variant]:
@@ -283,14 +269,11 @@ class Blueprint:
 		
 		return ret
 	
-	func generate_start():
-		current_index = 0
-	
 	func _load_data(file: ConfigFile, base_dir: String) -> void:
 		pass
 	
-	func _generate_next(element: Node, binds: Dictionary) -> bool:
-		return false
+	func _generate(parent: Node, binds: Dictionary) -> void:
+		pass
 
 class KeyboardBlueprint extends Blueprint:
 	class KeyMapping:
@@ -355,37 +338,37 @@ class KeyboardBlueprint extends Blueprint:
 				
 				mappings.append(mapping)
 	
-	func _generate_next(element: Node, binds: Dictionary) -> bool:
-		if current_index == mappings.size():
-			automap(binds, KEY_KP_0, KEY_0)
-			automap(binds, KEY_KP_1, KEY_1)
-			automap(binds, KEY_KP_2, KEY_2)
-			automap(binds, KEY_KP_3, KEY_3)
-			automap(binds, KEY_KP_4, KEY_4)
-			automap(binds, KEY_KP_5, KEY_5)
-			automap(binds, KEY_KP_6, KEY_6)
-			automap(binds, KEY_KP_7, KEY_7)
-			automap(binds, KEY_KP_8, KEY_8)
-			automap(binds, KEY_KP_9, KEY_9)
-			automap(binds, KEY_KP_SUBTRACT, KEY_MINUS)
-			automap(binds, KEY_KP_DIVIDE, KEY_SLASH)
-			return false
+	func _generate(parent: Node, binds: Dictionary) -> void:
+		var idx: int
+		for key in mappings:
+			binds[key.keycode] = idx
+			idx += 1
+			
+			var element = make_element.call()
+			element.base.texture = key.base
+			
+			var element_label: Label = element.label
+			element_label.add_theme_font_size_override(&"font_size", key.font_size if key.font_size != 0 else font_size)
+			element_label.add_theme_font_override(&"font", key.font if key.font else font)
+			element_label.add_theme_color_override(&"font_color", key.font_color if key.font_color.a > 0 else font_color)
+			element_label.text = key.text
+			element_label.offset_transform_position = key.text_offset
+			
+			element.overlay.texture = key.image
+			parent.add_child(element)
 		
-		var key := mappings[current_index]
-		binds[key.keycode] = current_index
-		
-		element.base.texture = key.base
-		
-		var element_label: Label = element.label
-		element_label.add_theme_font_size_override(&"font_size", key.font_size if key.font_size != 0 else font_size)
-		element_label.add_theme_font_override(&"font", key.font if key.font else font)
-		element_label.add_theme_color_override(&"font_color", key.font_color if key.font_color.a > 0 else font_color)
-		element_label.text = key.text
-		element_label.offset_transform_position = key.text_offset
-		
-		element.overlay.texture = key.image
-		
-		return true
+		automap(binds, KEY_KP_0, KEY_0)
+		automap(binds, KEY_KP_1, KEY_1)
+		automap(binds, KEY_KP_2, KEY_2)
+		automap(binds, KEY_KP_3, KEY_3)
+		automap(binds, KEY_KP_4, KEY_4)
+		automap(binds, KEY_KP_5, KEY_5)
+		automap(binds, KEY_KP_6, KEY_6)
+		automap(binds, KEY_KP_7, KEY_7)
+		automap(binds, KEY_KP_8, KEY_8)
+		automap(binds, KEY_KP_9, KEY_9)
+		automap(binds, KEY_KP_SUBTRACT, KEY_MINUS)
+		automap(binds, KEY_KP_DIVIDE, KEY_SLASH)
 	
 	func automap(binds: Dictionary, from: int, to: int):
 		if not from in binds and to in binds:
@@ -439,27 +422,28 @@ class MouseBlueprint extends Blueprint:
 		add_wheel_mapping.call("right", MOUSE_BUTTON_WHEEL_RIGHT)
 		add_wheel_mapping.call("left", MOUSE_BUTTON_WHEEL_LEFT)
 	
-	func _generate_next(element: Node, binds: Dictionary) -> bool:
-		if current_index == mappings.size():
-			return false
-		
-		var mapping := mappings[current_index]
-		element.base.texture = base_texture
-		
-		if mapping.button >= MOUSE_BUTTON_WHEEL_UP and mapping.button <= MOUSE_BUTTON_WHEEL_RIGHT:
-			if not middle_texture:
-				push_warning("No middle button defined, wheel image will be incomplete.")
+	func _generate(parent: Node, binds: Dictionary) -> void:
+		var idx: int
+		for mapping in mappings:
+			binds[mapping.button] = idx
+			idx += 1
 			
-			element.overlay.texture = middle_texture
-			element.overlay2.texture = mapping.image
-		else:
-			element.overlay.texture = mapping.image
-		
-		if mapping.button == MOUSE_BUTTON_MIDDLE:
-			middle_texture = mapping.image
-		
-		binds[mapping.button] = current_index
-		return true
+			var element = make_element.call()
+			element.base.texture = base_texture
+			
+			if mapping.button >= MOUSE_BUTTON_WHEEL_UP and mapping.button <= MOUSE_BUTTON_WHEEL_RIGHT:
+				if not middle_texture:
+					push_warning("No middle button defined, wheel image will be incomplete.")
+				
+				element.overlay.texture = middle_texture
+				element.overlay2.texture = mapping.image
+			else:
+				element.overlay.texture = mapping.image
+			
+			if mapping.button == MOUSE_BUTTON_MIDDLE:
+				middle_texture = mapping.image
+			
+			parent.add_child(element)
 
 class JoypadBlueprint extends Blueprint:
 	class JoypadMapping:
@@ -539,16 +523,17 @@ class JoypadBlueprint extends Blueprint:
 		add_direction_mapping.call("LeftStick", 1000 + JOY_AXIS_LEFT_X)
 		add_direction_mapping.call("RightStick", 1000 + JOY_AXIS_RIGHT_X)
 	
-	func _generate_next(element: Node, binds: Dictionary) -> bool:
-		if current_index == mappings.size():
-			return false
-		
-		var mapping := mappings[current_index]
-		element.base.texture = mapping.image
-		
-		if mapping.image2:
-			element.overlay.texture = mapping.image2
-			element.overlay.offset_transform_rotation = mapping.rotation
-		
-		binds[mapping.button] = current_index
-		return true
+	func _generate(parent: Node, binds: Dictionary) -> void:
+		var idx: int
+		for mapping in mappings:
+			binds[mapping.button] = idx
+			idx += 1
+			
+			var element = make_element.call()
+			element.base.texture = mapping.image
+			
+			if mapping.image2:
+				element.overlay.texture = mapping.image2
+				element.overlay.offset_transform_rotation = mapping.rotation
+			
+			parent.add_child(element)
