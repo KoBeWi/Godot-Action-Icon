@@ -45,25 +45,24 @@ enum FitMode {
 		joypad_mode = mode
 		refresh()
 
-## Controller model for the displayed icon.
-@export var joypad_model: int:
+## Controller model for the displayed icon. Use [code]Auto[/code] to automatically detect model based on connected device (best-effort).
+@export var joypad_model := -1:
 	set(model):
 		if model == joypad_model:
 			return
 		
 		joypad_model = model
-		if model == 0:
+		if model == -1:
 			if not Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 				Input.joy_connection_changed.connect(_on_joy_connection_changed)
 		else:
 			if Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 				Input.joy_connection_changed.disconnect(_on_joy_connection_changed)
-		
-			_cached_joypad = null
+			_cached_joypad = _joypad_sets.values()[model]
 		refresh()
 
 ## If action has both keyboard and mouse events, this makes mouse icons preferred if available.
-@export var favor_mouse: bool = true:
+@export var favor_mouse := true:
 	set(favor):
 		if favor == favor_mouse:
 			return
@@ -252,7 +251,8 @@ func _refresh():
 		return
 	
 	_pending_refresh = false
-	_cached_joypad = null
+	if joypad_model == -1:
+		_cached_joypad = null
 	
 	var is_joypad := joypad_mode == JoypadMode.FORCE_JOYPAD or (joypad_mode == JoypadMode.ADAPTIVE and _use_joypad)
 	if _custom_actions and _custom_actions._has_action(action_name):
@@ -400,17 +400,29 @@ func _notification(what: int) -> void:
 				assert(InputMap.has_action(action_name) or (_custom_actions and _custom_actions._has_action(action_name)), str("Action \"", action_name, "\" does not exist in the InputMap nor in custom action list."))
 			
 		NOTIFICATION_VISIBILITY_CHANGED:
-			if is_visible_in_tree() and _pending_refresh:
+			if _pending_refresh and is_visible_in_tree():
 				_refresh()
 
 func _validate_property(property: Dictionary) -> void:
 	if property.name == "texture":
-		property.usage = 0
+		property.usage = PROPERTY_USAGE_NONE
 	elif fit_mode != FitMode.CUSTOM and (property.name == "expand_mode" or property.name == "stretch_mode"):
-		property.usage = 0
+		property.usage = PROPERTY_USAGE_NONE
 	elif property.name == "joypad_model":
-		var models := ["Auto"]
-		#models.append_array(_model_list)
+		var models: PackedStringArray
+		models.append("Auto:-1")
+		
+		var sets: Array[IconSet]
+		
+		var i: int
+		for st: IconSet in _joypad_sets.values():
+			if not st in sets:
+				sets.append(st)
+				var joyname := st.texture.resource_path.get_file().get_basename().trim_prefix("Joypad")
+				models.append("%s:%d" % [joyname, i])
+			
+			i += 1
+		
 		property.hint = PROPERTY_HINT_ENUM
 		property.hint_string = ",".join(models)
 
