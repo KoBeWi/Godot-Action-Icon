@@ -1,3 +1,4 @@
+## Displays input prompt for an input action.
 @tool
 @icon("res://addons/ActionIcon/Icon.png")
 class_name ActionIcon extends TextureRect
@@ -26,7 +27,7 @@ enum FitMode {
 	MATCH_HEIGHT,
 }
 
-## Action name from InputMap or CUSTOM_ACTIONS.
+## Action name from InputMap or [ActionIconCustomActions].
 @export_custom(PROPERTY_HINT_INPUT_NAME, "show_builtin,loose_mode") var action_name: StringName = &"":
 	set(action):
 		if action == action_name:
@@ -92,9 +93,11 @@ enum FitMode {
 		
 		notify_property_list_changed()
 
+## Refreshes the displayed icon.
 @export_tool_button("Refresh Icon", "ReloadSmall") var editor_refresh_icon = func():
 	refresh()
 
+## Reloads all icon data and refreshes icons.
 @export_tool_button("Reload Data", "Close") var editor_reload_data = func():
 	_keyboard_set = null
 	_mouse_set = null
@@ -152,6 +155,8 @@ static func initialize_data():
 		for key in data:
 			if key is int:
 				set_object.mapping[key] = data[key]
+			elif key is String and not key.begins_with("$"):
+				set_object.mapping[key] = data[key]
 		
 		match data["$type"]:
 			Device.KEYBOARD:
@@ -185,6 +190,51 @@ func refresh():
 	_pending_refresh = true
 	_refresh.call_deferred()
 
+func get_icon(icon_id: Variant, device: Device) -> Texture2D:
+	var icon_set: IconSet
+	match device:
+		Device.KEYBOARD:
+			icon_set = _keyboard_set
+		Device.MOUSE:
+			icon_set = _mouse_set
+		Device.JOYPAD:
+			icon_set = _get_joypad_set(0)
+	
+	if not icon_set:
+		return null
+	
+	var idx: int = icon_set.mapping.get(icon_id, -1)
+	return _get_set_icon(icon_set, idx)
+
+static func get_icon_static(icon_id: Variant, device: Device) -> Texture2D:
+	var icon_set: IconSet
+	match device:
+		Device.KEYBOARD:
+			icon_set = _keyboard_set
+		Device.MOUSE:
+			icon_set = _mouse_set
+		Device.JOYPAD:
+			icon_set = _joypad_sets[_default_joypad]
+	
+	if not icon_set:
+		return null
+	
+	var idx: int = icon_set.mapping.get(icon_id, -1)
+	return _get_set_icon(icon_set, idx)
+
+## Returns the list of events associated with input action. Unlike [method InputMap.action_get_events], this also works in the editor.
+static func action_get_events(action_name: StringName) -> Array[InputEvent]:
+	if Engine.is_editor_hint():
+		var setting := "input/" + action_name
+		var ret: Array[InputEvent]
+		if not ProjectSettings.has_setting(setting):
+			return ret
+		
+		ret.assign(ProjectSettings.get(setting)["events"])
+		return ret
+	else:
+		return InputMap.action_get_events(action_name)
+
 ## Calls [method refresh] on all ActionIcon nodes in the scene tree.
 static func refresh_all():
 	Engine.get_main_loop().call_group(GROUP_NAME, &"refresh")
@@ -198,9 +248,10 @@ func _refresh():
 		return
 	
 	_pending_refresh = false
-	var is_joypad := joypad_mode == JoypadMode.FORCE_JOYPAD or (joypad_mode == JoypadMode.ADAPTIVE and _use_joypad)
+	_cached_joypad = null
 	
-	if _custom_actions and _custom_actions.has_action(action_name):
+	var is_joypad := joypad_mode == JoypadMode.FORCE_JOYPAD or (joypad_mode == JoypadMode.ADAPTIVE and _use_joypad)
+	if _custom_actions and _custom_actions._has_action(action_name):
 		var device: Device
 		if is_joypad:
 			device = Device.JOYPAD
@@ -209,7 +260,7 @@ func _refresh():
 		else:
 			device = Device.KEYBOARD
 		
-		var action_texture := _custom_actions.get_texture(action_name, self, device)
+		var action_texture := _custom_actions._get_texture(action_name, self, device)
 		if not action_texture:
 			push_warning("Custom action \"%s\" has empty texture." % action_name)
 			texture = _DEFAULT_TEXTURE
@@ -221,7 +272,7 @@ func _refresh():
 		texture = _DEFAULT_TEXTURE
 		return
 	
-	var events := _action_get_events(action_name)
+	var events := action_get_events(action_name)
 	if events.is_empty():
 		texture = _DEFAULT_TEXTURE
 		push_warning("Action \"%s\" has no events." % action_name)
@@ -265,7 +316,7 @@ func _refresh():
 		texture = _DEFAULT_TEXTURE
 
 static func _get_keyboard(key: int) -> Texture2D:
-	return get_set_icon(_keyboard_set, _keyboard_set.mapping.get(key, -1))
+	return _get_set_icon(_keyboard_set, _keyboard_set.mapping.get(key, -1))
 
 func _get_joypad_set(device: int) -> IconSet:
 	if _cached_joypad:
@@ -284,12 +335,12 @@ func _get_joypad_set(device: int) -> IconSet:
 
 func _get_joypad(button: int, device: int) -> Texture2D:
 	var icon_set := _get_joypad_set(device)
-	return get_set_icon(icon_set, icon_set.mapping.get(button, -1))
+	return _get_set_icon(icon_set, icon_set.mapping.get(button, -1))
 
 func _get_joypad_axis(axis: int, value: float, device: int) -> Texture2D:
 	var icon_set := _get_joypad_set(device)
 	var id: int = axis + 2000 + 1000 * value ## wrong
-	return get_set_icon(icon_set, icon_set.mapping.get(id, -1))
+	return _get_set_icon(icon_set, icon_set.mapping.get(id, -1))
 
 func _get_mouse(button: int) -> Texture2D:
 	#match button:
@@ -349,7 +400,7 @@ func _notification(what: int) -> void:
 				return
 		
 			if not Engine.is_editor_hint():
-				assert(InputMap.has_action(action_name) or (_custom_actions and _custom_actions.has_action(action_name)), str("Action \"", action_name, "\" does not exist in the InputMap nor in custom action list."))
+				assert(InputMap.has_action(action_name) or (_custom_actions and _custom_actions._has_action(action_name)), str("Action \"", action_name, "\" does not exist in the InputMap nor in custom action list."))
 			
 		NOTIFICATION_VISIBILITY_CHANGED:
 			if is_visible_in_tree() and _pending_refresh:
@@ -374,19 +425,7 @@ func _update_process_input():
 		return
 	set_process_input(get_tree().get_first_node_in_group(GROUP_NAME) == self)
 
-static func _action_get_events(action_name: StringName) -> Array[InputEvent]:
-	if Engine.is_editor_hint():
-		var setting := "input/" + action_name
-		var ret: Array[InputEvent]
-		if not ProjectSettings.has_setting(setting):
-			return ret
-		
-		ret.assign(ProjectSettings.get(setting)["events"])
-		return ret
-	else:
-		return InputMap.action_get_events(action_name)
-
-static func get_set_icon(icon_set: IconSet, idx: int) -> Texture2D:
+static func _get_set_icon(icon_set: IconSet, idx: int) -> Texture2D:
 	if idx < 0:
 		return null
 	
@@ -398,4 +437,4 @@ static func get_set_icon(icon_set: IconSet, idx: int) -> Texture2D:
 
 class IconSet:
 	var texture: Texture2D
-	var mapping: Dictionary[int, int]
+	var mapping: Dictionary[Variant, int]
