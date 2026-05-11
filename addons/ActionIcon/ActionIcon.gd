@@ -333,6 +333,7 @@ func _get_joypad_axis(axis: int, value: float, device: int) -> Texture2D:
 		offset += 2
 	
 	axis = (axis + 1) * 100 + offset
+	prints(axis)
 	return _get_set_icon(icon_set, icon_set.mapping.get(axis, -1))
 
 func _get_joypad_set(device: int) -> IconSet:

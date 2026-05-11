@@ -507,7 +507,7 @@ class JoypadBlueprint extends Blueprint:
 		add_button_mapping.call("L2", (JOY_AXIS_TRIGGER_LEFT + 1) * 100)
 		add_button_mapping.call("L3", JOY_BUTTON_LEFT_STICK)
 		add_button_mapping.call("R1", JOY_BUTTON_RIGHT_SHOULDER)
-		add_button_mapping.call("L2", (JOY_AXIS_TRIGGER_RIGHT + 1) * 100)
+		add_button_mapping.call("R2", (JOY_AXIS_TRIGGER_RIGHT + 1) * 100)
 		add_button_mapping.call("R3", JOY_BUTTON_RIGHT_STICK)
 		
 		add_button_mapping.call("Back", JOY_BUTTON_BACK)
