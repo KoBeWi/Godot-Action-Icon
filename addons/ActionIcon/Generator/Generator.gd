@@ -550,7 +550,7 @@ class JoypadBlueprint extends Blueprint:
 				mapping_list.append(mapping)
 		
 		add_direction_mapping.call("DPad", JOY_BUTTON_DPAD_UP)
-		add_direction_mapping.call("LeftStick", 1000 + JOY_AXIS_LEFT_X)
+		add_direction_mapping.call("LeftStick", 500 + JOY_AXIS_LEFT_X)
 		add_direction_mapping.call("RightStick", 1000 + JOY_AXIS_RIGHT_X)
 		
 		super(file, base_dir)

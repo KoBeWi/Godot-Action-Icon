@@ -7,14 +7,16 @@ func _initialize():
 	register_action(&"move", get_move_icon)
 
 func _create_icon_cache():
+	# Create a viewport.
 	var viewport := prepare_icon_bake()
-	
+	# Prepare the texture. add_key_to_viewport() is a helper that puts images into a nice grid.
+	# Replace ui_ actions with your actual direction actions.
 	add_key_to_viewport(viewport, &"ui_up", Vector2(1, 0))
 	add_key_to_viewport(viewport, &"ui_down", Vector2(1, 1))
 	add_key_to_viewport(viewport, &"ui_left", Vector2(0, 1))
 	add_key_to_viewport(viewport, &"ui_right", Vector2(2, 1))
-	
-	move_icon_cache = await bake_icon()
+	# Finalize the texture.
+	move_icon_cache = bake_icon()
 
 func get_move_icon(action_icon: ActionIcon, device: ActionIcon.Device) -> Texture2D:
 	if device == ActionIcon.Device.JOYPAD:

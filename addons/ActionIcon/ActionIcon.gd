@@ -93,7 +93,7 @@ enum FitMode {
 		
 		notify_property_list_changed()
 
-## Refreshes the displayed icon.
+## Refreshes the displayed icon in the editor.
 @export_tool_button("Refresh Icon", "ReloadSmall") var editor_refresh_icon = func():
 	refresh()
 
@@ -121,7 +121,7 @@ var _fit_initialized: bool
 var _cached_joypad: IconSet
 
 static func _static_init() -> void:
-	## TODO
+	### TODO
 	var icon_set_path: String = ProjectSettings.get_setting(_ACTION_SET_SETTING)
 	if not DirAccess.dir_exists_absolute(icon_set_path):
 		icon_set_path = "res://addons/ActionIcon/DefaultIconSet"
@@ -190,6 +190,8 @@ func refresh():
 	_pending_refresh = true
 	_refresh.call_deferred()
 
+## Returns an icon associated with the specified [param icon_id] and [param device]. The ID depends on the device, e.g. keyboard uses [code]KEY_*[/code] constants. Custom set icons are identified with a [String].
+## [br][br][b]Note:[/b] Joypad axis values use hard-coded IDs, due to not having built-in constants. These are 503/502 for positive/negative left X, 501/500 for positive/negative left Y, 1005/1004 for positive/negative right X, 1003/1002 for positive/negative right Y.
 func get_icon(icon_id: Variant, device: Device) -> Texture2D:
 	var icon_set: IconSet
 	match device:
@@ -206,6 +208,8 @@ func get_icon(icon_id: Variant, device: Device) -> Texture2D:
 	var idx: int = icon_set.mapping.get(icon_id, -1)
 	return _get_set_icon(icon_set, idx)
 
+
+## Static version of [method get_icon]. Due to not being bound to a specific [ActionIcon], always uses the default joypad set.
 static func get_icon_static(icon_id: Variant, device: Device) -> Texture2D:
 	var icon_set: IconSet
 	match device:
@@ -315,8 +319,28 @@ func _refresh():
 		push_warning("No icon found for action \"%s\"." % action_name)
 		texture = _DEFAULT_TEXTURE
 
-static func _get_keyboard(key: int) -> Texture2D:
+func _get_keyboard(key: int) -> Texture2D:
 	return _get_set_icon(_keyboard_set, _keyboard_set.mapping.get(key, -1))
+
+func _get_mouse(button: int) -> Texture2D:
+	return _get_set_icon(_mouse_set, _mouse_set.mapping.get(button, -1))
+
+func _get_joypad(button: int, device: int) -> Texture2D:
+	var icon_set := _get_joypad_set(device)
+	return _get_set_icon(icon_set, icon_set.mapping.get(button, -1))
+
+func _get_joypad_axis(axis: int, value: float, device: int) -> Texture2D:
+	var icon_set := _get_joypad_set(device)
+	match axis:
+		JOY_AXIS_LEFT_X:
+			axis = 503 if value > 0 else 502
+		JOY_AXIS_LEFT_Y:
+			axis = 501 if value > 0 else 500
+		JOY_AXIS_RIGHT_X:
+			axis = 1005 if value > 0 else 1004
+		JOY_AXIS_RIGHT_Y:
+			axis = 1003 if value > 0 else 1002
+	return _get_set_icon(icon_set, icon_set.mapping.get(axis, -1))
 
 func _get_joypad_set(device: int) -> IconSet:
 	if _cached_joypad:
@@ -332,33 +356,6 @@ func _get_joypad_set(device: int) -> IconSet:
 	
 	_cached_joypad = data
 	return data
-
-func _get_joypad(button: int, device: int) -> Texture2D:
-	var icon_set := _get_joypad_set(device)
-	return _get_set_icon(icon_set, icon_set.mapping.get(button, -1))
-
-func _get_joypad_axis(axis: int, value: float, device: int) -> Texture2D:
-	var icon_set := _get_joypad_set(device)
-	var id: int = axis + 2000 + 1000 * value ## wrong
-	return _get_set_icon(icon_set, icon_set.mapping.get(id, -1))
-
-func _get_mouse(button: int) -> Texture2D:
-	#match button:
-		#MOUSE_BUTTON_LEFT:
-			#return _get_image(MOUSE, "Left")
-		#MOUSE_BUTTON_RIGHT:
-			#return _get_image(MOUSE, "Right")
-		#MOUSE_BUTTON_MIDDLE:
-			#return _get_image(MOUSE, "Middle")
-		#MOUSE_BUTTON_WHEEL_DOWN:
-			#return _get_image(MOUSE, "WheelDown")
-		#MOUSE_BUTTON_WHEEL_LEFT:
-			#return _get_image(MOUSE, "WheelLeft")
-		#MOUSE_BUTTON_WHEEL_RIGHT:
-			#return _get_image(MOUSE, "WheelRight")
-		#MOUSE_BUTTON_WHEEL_UP:
-			#return _get_image(MOUSE, "WheelUp")
-	return null
 
 func _on_joy_connection_changed(device: int, connected: bool):
 	if connected:
