@@ -5,9 +5,9 @@ class_name ActionIcon extends TextureRect
 
 const _SHEET_COLUMNS = 10
 const _ACTION_SET_SETTING = "addons/action_icon/action_set_directory"
+const _AUTO_LOAD_SETTING = "addons/action_icon/automatically_load_icons"
 const _DEFAULT_TEXTURE = preload("uid://cx5x6dyfjq7h8")
-
-const GROUP_NAME = &"action_icons"
+const _GROUP_NAME = &"action_icons"
 
 enum Device { KEYBOARD, MOUSE, JOYPAD }
 enum JoypadMode {
@@ -58,7 +58,6 @@ enum FitMode {
 		else:
 			if Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 				Input.joy_connection_changed.disconnect(_on_joy_connection_changed)
-			_cached_joypad = _joypad_sets.values()[model]
 		refresh()
 
 ## If action has both keyboard and mouse events, this makes mouse icons preferred if available.
@@ -71,7 +70,13 @@ enum FitMode {
 		refresh()
 
 ## If action has both joypad button and axis events, this makes axis icons preferred if available.
-@export var favor_axis: bool = false
+@export var favor_axis: bool = false:
+	set(favor):
+		if favor == favor_axis:
+			return
+		
+		favor_axis = favor
+		refresh()
 
 ## Use to control the size of icon inside a container. CUSTOM enables setting strech modes manually using [TextureRect] properties.
 @export var fit_mode: FitMode = FitMode.MATCH_WIDTH:
@@ -120,33 +125,27 @@ var _fit_initialized: bool
 var _cached_joypad: IconSet
 
 static func _static_init() -> void:
-	### TODO
+	_use_joypad = not Input.get_connected_joypads().is_empty()
+	if ProjectSettings.get_setting(_AUTO_LOAD_SETTING, true):
+		initialize_data()
+
+## Call it once to load the icon data, but only if [code]addons/action_icon/automatically_load_icons[/code] project setting is disabled. Needs to be called before any [ActionIcon] is created.
+static func initialize_data():
 	var icon_set_path: String = ProjectSettings.get_setting(_ACTION_SET_SETTING)
 	if not DirAccess.dir_exists_absolute(icon_set_path):
 		icon_set_path = "res://addons/ActionIcon/DefaultIconSet"
 	
 	var cfg := ConfigFile.new()
 	cfg.load(icon_set_path.path_join("Config.cfg"))
-	_default_joypad = cfg.get_value("config", "default_joypad")
-	if cfg.get_value("config", "load_automatically"):
-		initialize_data()
-	
-	_use_joypad = not Input.get_connected_joypads().is_empty()
-
-## Call it once to load the icon data, but only if [code]load_automatically[/code] is disabled in the config.
-static func initialize_data():
-	var set_cache_path: String = ProjectSettings.get_setting(_ACTION_SET_SETTING)
-	
-	var cfg := ConfigFile.new()
-	cfg.load(set_cache_path.path_join("Config.cfg"))
 	_base_size = cfg.get_value("config", "base_size")
+	_default_joypad = cfg.get_value("config", "default_joypad")
 	
 	var set_list: PackedStringArray = cfg.get_value("config", "set_list")
 	
 	for icon_set in set_list:
-		var sheet_path := set_cache_path.path_join(icon_set + ".png")
+		var sheet_path := icon_set_path.path_join(icon_set + ".png")
 		assert(ResourceLoader.exists(sheet_path, "Texture2D"), "Missing action icon sheet for %s." % icon_set)
-		var data: Dictionary = str_to_var(FileAccess.get_file_as_string(set_cache_path.path_join(icon_set + ".dat")))
+		var data: Dictionary = str_to_var(FileAccess.get_file_as_string(icon_set_path.path_join(icon_set + ".dat")))
 		
 		var set_object := IconSet.new()
 		set_object.texture = load(sheet_path)
@@ -170,16 +169,13 @@ static func initialize_data():
 				if icon_set == _default_joypad:
 					_default_joypad = data["$models"][0]
 	
-	var custom_actions_path := set_cache_path.path_join("CustomActions.gd")
+	var custom_actions_path := icon_set_path.path_join("CustomActions.gd")
 	if ResourceLoader.exists(custom_actions_path):
 		_custom_actions = load(custom_actions_path).new()
 
 func _init():
-	add_to_group(GROUP_NAME)
+	add_to_group(_GROUP_NAME)
 	texture = _DEFAULT_TEXTURE
-	
-	if Engine.is_editor_hint() and not _keyboard_set:
-		initialize_data()
 
 ## Forces icon refresh. Useful when you change controls.
 func refresh():
@@ -240,7 +236,7 @@ static func action_get_events(action_name: StringName) -> Array[InputEvent]:
 
 ## Calls [method refresh] on all ActionIcon nodes in the scene tree.
 static func refresh_all():
-	Engine.get_main_loop().call_group(GROUP_NAME, &"refresh")
+	Engine.get_main_loop().call_group(_GROUP_NAME, &"refresh")
 
 ## Forces re-cache of icons for custom actions. Calls _create_icon_cache() in the custom actions script.
 static func reload_custom_actions():
@@ -251,8 +247,7 @@ func _refresh():
 		return
 	
 	_pending_refresh = false
-	if joypad_model == -1:
-		_cached_joypad = null
+	_cached_joypad = null
 	
 	var is_joypad := joypad_mode == JoypadMode.FORCE_JOYPAD or (joypad_mode == JoypadMode.ADAPTIVE and _use_joypad)
 	if _custom_actions and _custom_actions._has_action(action_name):
@@ -331,19 +326,20 @@ func _get_joypad(button: int, device: int) -> Texture2D:
 
 func _get_joypad_axis(axis: int, value: float, device: int) -> Texture2D:
 	var icon_set := _get_joypad_set(device)
-	match axis:
-		JOY_AXIS_LEFT_X:
-			axis = 503 if value > 0 else 502
-		JOY_AXIS_LEFT_Y:
-			axis = 501 if value > 0 else 500
-		JOY_AXIS_RIGHT_X:
-			axis = 1005 if value > 0 else 1004
-		JOY_AXIS_RIGHT_Y:
-			axis = 1003 if value > 0 else 1002
+	
+	var offset := maxi(-value, 0)
+	if axis == JOY_AXIS_LEFT_Y or axis == JOY_AXIS_RIGHT_Y:
+		axis -= 1
+		offset += 2
+	
+	axis = (axis + 1) * 100 + offset
 	return _get_set_icon(icon_set, icon_set.mapping.get(axis, -1))
 
 func _get_joypad_set(device: int) -> IconSet:
 	if _cached_joypad:
+		return _cached_joypad
+	elif joypad_model > -1:
+		_cached_joypad = _joypad_sets.values()[joypad_model]
 		return _cached_joypad
 	
 	var data: IconSet
@@ -375,7 +371,7 @@ func _input(event: InputEvent) -> void:
 func _notification(what: int) -> void:
 	match what:
 		NOTIFICATION_ENTER_TREE:
-			if get_tree().get_first_node_in_group(GROUP_NAME) == self:
+			if get_tree().get_first_node_in_group(_GROUP_NAME) == self:
 				_queue_update_process_input()
 			else:
 				set_process_input(false)
@@ -427,12 +423,12 @@ func _validate_property(property: Dictionary) -> void:
 		property.hint_string = ",".join(models)
 
 func _queue_update_process_input():
-	Engine.get_main_loop().call_group_flags(SceneTree.GROUP_CALL_DEFERRED | SceneTree.GROUP_CALL_UNIQUE, GROUP_NAME, _update_process_input.get_method())
+	Engine.get_main_loop().call_group_flags(SceneTree.GROUP_CALL_DEFERRED | SceneTree.GROUP_CALL_UNIQUE, _GROUP_NAME, _update_process_input.get_method())
 
 func _update_process_input():
 	if not is_inside_tree():
 		return
-	set_process_input(get_tree().get_first_node_in_group(GROUP_NAME) == self)
+	set_process_input(get_tree().get_first_node_in_group(_GROUP_NAME) == self)
 
 static func _get_set_icon(icon_set: IconSet, idx: int) -> Texture2D:
 	if idx < 0:

@@ -12,6 +12,7 @@ func _enter_tree() -> void:
 	EditorInterface.get_command_palette().add_command(tr_extract.tr("ActionIcon: Generate Icon Set"), "action_icon/generate_icon_set", generator.show)
 	
 	define_project_setting(ActionIcon._ACTION_SET_SETTING, "res://ActionIconSet", PROPERTY_HINT_DIR)
+	define_project_setting(ActionIcon._AUTO_LOAD_SETTING, true)
 
 func _exit_tree() -> void:
 	generator.queue_free()

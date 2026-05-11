@@ -8,8 +8,8 @@ var _action_list: Dictionary[StringName, Callable]
 var _viewport: SubViewport
 
 func _init() -> void:
-	_create_icon_cache.call_deferred()
 	_initialize()
+	_create_icon_cache()
 
 ## Called when the custom actions script is created. Use it to register actions.
 func _initialize():

@@ -26,8 +26,6 @@ var mouse_group := ButtonGroup.new()
 func _notification(what: int) -> void:
 	match what:
 		NOTIFICATION_SCENE_INSTANTIATED:
-			Blueprint.make_element = create_element
-			
 			main_dir = DirAccess.open("res://addons/ActionIcon/Generator/Blueprints")
 			
 			dialog = %Dialog
@@ -293,8 +291,6 @@ class Blueprint:
 			ct.rotation = rotation * (PI / 2)
 			overlays.append(ct)
 	
-	static var make_element##
-	
 	var name: String
 	var modified_time: int
 	var mapping_list: Array[Mapping]
@@ -508,10 +504,10 @@ class JoypadBlueprint extends Blueprint:
 		add_button_mapping.call("Y", JOY_BUTTON_Y)
 		
 		add_button_mapping.call("L1", JOY_BUTTON_LEFT_SHOULDER)
-		add_button_mapping.call("L2", JOY_AXIS_TRIGGER_LEFT)
+		add_button_mapping.call("L2", (JOY_AXIS_TRIGGER_LEFT + 1) * 100)
 		add_button_mapping.call("L3", JOY_BUTTON_LEFT_STICK)
 		add_button_mapping.call("R1", JOY_BUTTON_RIGHT_SHOULDER)
-		add_button_mapping.call("L2", JOY_AXIS_TRIGGER_RIGHT)
+		add_button_mapping.call("L2", (JOY_AXIS_TRIGGER_RIGHT + 1) * 100)
 		add_button_mapping.call("R3", JOY_BUTTON_RIGHT_STICK)
 		
 		add_button_mapping.call("Back", JOY_BUTTON_BACK)
@@ -544,14 +540,18 @@ class JoypadBlueprint extends Blueprint:
 				mapping.key = button + i
 				mapping.base_texture = base
 				
-				const DIRECTIONS = [3, 1, 2, 0]
-				mapping.add_overlay(dir, DIRECTIONS[i])
+				if button >= 100:
+					const DIRECTIONS = [0, 2, 1, 3]
+					mapping.add_overlay(dir, DIRECTIONS[i])
+				else:
+					const DIRECTIONS = [3, 1, 2, 0]
+					mapping.add_overlay(dir, DIRECTIONS[i])
 				
 				mapping_list.append(mapping)
 		
 		add_direction_mapping.call("DPad", JOY_BUTTON_DPAD_UP)
-		add_direction_mapping.call("LeftStick", 500 + JOY_AXIS_LEFT_X)
-		add_direction_mapping.call("RightStick", 1000 + JOY_AXIS_RIGHT_X)
+		add_direction_mapping.call("LeftStick", (JOY_AXIS_LEFT_X + 1) * 100)
+		add_direction_mapping.call("RightStick", (JOY_AXIS_RIGHT_X + 1) * 100)
 		
 		super(file, base_dir)
 	
