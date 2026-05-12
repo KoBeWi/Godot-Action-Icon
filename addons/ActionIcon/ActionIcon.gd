@@ -203,7 +203,6 @@ func get_icon(icon_id: Variant, device: Device) -> Texture2D:
 	var idx: int = icon_set.mapping.get(icon_id, -1)
 	return _get_set_icon(icon_set, idx)
 
-
 ## Static version of [method get_icon]. Due to not being bound to a specific [ActionIcon], always uses the default joypad set.
 static func get_icon_static(icon_id: Variant, device: Device) -> Texture2D:
 	var icon_set: IconSet
@@ -333,7 +332,6 @@ func _get_joypad_axis(axis: int, value: float, device: int) -> Texture2D:
 		offset += 2
 	
 	axis = (axis + 1) * 100 + offset
-	prints(axis)
 	return _get_set_icon(icon_set, icon_set.mapping.get(axis, -1))
 
 func _get_joypad_set(device: int) -> IconSet:
@@ -356,15 +354,24 @@ func _get_joypad_set(device: int) -> IconSet:
 
 func _on_joy_connection_changed(device: int, connected: bool):
 	if connected:
-		_cached_joypad = null
 		refresh()
 
 func _input(event: InputEvent) -> void:
 	var _prev_use := _use_joypad
-	if _use_joypad and (event is InputEventKey or event is InputEventMouseButton or event is InputEventMouseMotion):
-		_use_joypad = false
-	elif not _use_joypad and (event is InputEventJoypadButton or (event is InputEventJoypadMotion and absf(event.axis_value) > 0.5)):
-		_use_joypad = true
+	if _use_joypad:
+		if event is InputEventKey or event is InputEventMouseButton:
+			_use_joypad = false
+		else:
+			var mm := event as InputEventMouseMotion
+			if mm and mm.relative.length_squared() >= 100:
+				_use_joypad = false
+	else:
+		if event is InputEventJoypadButton:
+			_use_joypad = true
+		else:
+			var jm := event as InputEventJoypadMotion
+			if jm and absf(jm.axis_value) > 0.5:
+				_use_joypad = true
 	
 	if _use_joypad != _prev_use:
 		refresh_all()
@@ -401,11 +408,12 @@ func _notification(what: int) -> void:
 				_refresh()
 
 func _validate_property(property: Dictionary) -> void:
-	if property.name == "texture":
+	var pname: String = property["name"]
+	if pname == "texture":
+		property["usage"] = PROPERTY_USAGE_NONE
+	elif fit_mode != FitMode.CUSTOM and (pname == "expand_mode" or pname == "stretch_mode"):
 		property.usage = PROPERTY_USAGE_NONE
-	elif fit_mode != FitMode.CUSTOM and (property.name == "expand_mode" or property.name == "stretch_mode"):
-		property.usage = PROPERTY_USAGE_NONE
-	elif property.name == "joypad_model":
+	elif Engine.is_editor_hint() and pname == "joypad_model":
 		var models: PackedStringArray
 		models.append("Auto:-1")
 		
@@ -427,9 +435,8 @@ func _queue_update_process_input():
 	Engine.get_main_loop().call_group_flags(SceneTree.GROUP_CALL_DEFERRED | SceneTree.GROUP_CALL_UNIQUE, _GROUP_NAME, _update_process_input.get_method())
 
 func _update_process_input():
-	if not is_inside_tree():
-		return
-	set_process_input(get_tree().get_first_node_in_group(_GROUP_NAME) == self)
+	if is_inside_tree():
+		set_process_input(get_tree().get_first_node_in_group(_GROUP_NAME) == self)
 
 static func _get_set_icon(icon_set: IconSet, idx: int) -> Texture2D:
 	if idx < 0:

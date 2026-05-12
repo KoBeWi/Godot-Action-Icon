@@ -35,6 +35,11 @@ func _notification(what: int) -> void:
 			_on_dialog_focus_entered()
 
 func show():
+	var selected_joypads: PackedStringArray
+	for node in joypad_sets.get_children():
+		if node is CheckBox and node.button_pressed:
+			selected_joypads.append(node.text)
+	
 	blueprint_list.clear()
 	
 	var main_config := ConfigFile.new()
@@ -113,6 +118,9 @@ func show():
 			checkbox.pressed.connect(update_models)
 			joypad_sets.add_child(checkbox)
 			
+			if blueprint.name in selected_joypads:
+				checkbox.button_pressed = true
+			
 			var button := Button.new()
 			button.icon = preview_icon
 			joypad_sets.add_child(button)
@@ -121,7 +129,7 @@ func show():
 			if blueprint.name == default_joypad:
 				checkbox.button_pressed = true
 				checkbox.disabled = true
-				checkbox.tooltip_text = "Default joypad model must be included."
+				checkbox.tooltip_text = get_parent().tr_extract.tr("Default joypad model must be included.")
 	
 	update_models()
 	dialog.popup_centered_ratio(0.8)
