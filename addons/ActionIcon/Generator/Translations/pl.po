@@ -40,6 +40,14 @@ msgid "Click 🔍 button to preview a set."
 msgstr "Kliknij przycisk 🔍, aby podejrzeć zestaw."
 
 #: addons/ActionIcon/Generator/Generator.tscn
+msgid "The generator dialog is always on top."
+msgstr "Dialog generatora zawsze jest na wierzchu."
+
+#: addons/ActionIcon/Generator/Generator.tscn
+msgid "Always On Top"
+msgstr "Zawsze na wierzchu"
+
+#: addons/ActionIcon/Generator/Generator.tscn
 msgid "Select icon sets to include"
 msgstr "Wybierz zestawy ikon do wygenerowania"
 
@@ -55,6 +63,6 @@ msgstr "Zestaw myszy"
 msgid "Joypad Sets"
 msgstr "Zestawy kontrolerów"
 
-#: addons/ActionIcon/plugin.gd:11 addons/ActionIcon/plugin.gd:12
+#: addons/ActionIcon/plugin.gd:14 addons/ActionIcon/plugin.gd:15
 msgid "ActionIcon: Generate Icon Set"
 msgstr "ActionIcon: Generuj zestaw ikon"

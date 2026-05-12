@@ -277,6 +277,11 @@ func _on_dialog_focus_entered() -> void:
 		if try_update_blueprint(current_previewed):
 			preview_blueprint(current_previewed)
 
+func _on_top_toggled(toggled_on: bool) -> void:
+	dialog.hide()
+	dialog.always_on_top = toggled_on
+	dialog.show()
+
 class Blueprint:
 	class Mapping:
 		class CustomTexture:

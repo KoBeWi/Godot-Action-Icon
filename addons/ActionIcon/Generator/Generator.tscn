@@ -90,6 +90,12 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_bj8w8")
 text = "Click 🔍 button to preview a set."
 horizontal_alignment = 1
 
+[node name="CheckBox" type="CheckBox" parent="Dialog/VBoxContainer" unique_id=1386167937]
+layout_mode = 2
+size_flags_horizontal = 4
+tooltip_text = "The generator dialog is always on top."
+text = "Always On Top"
+
 [node name="Label" type="Label" parent="Dialog/VBoxContainer" unique_id=268542453]
 layout_mode = 2
 size_flags_horizontal = 4
@@ -167,3 +173,4 @@ columns = 10
 [connection signal="confirmed" from="Dialog" to="." method="_confirm_generate"]
 [connection signal="focus_entered" from="Dialog" to="." method="_on_dialog_focus_entered"]
 [connection signal="visibility_changed" from="Dialog" to="." method="_on_dialog_visibility_changed"]
+[connection signal="toggled" from="Dialog/VBoxContainer/CheckBox" to="." method="_on_top_toggled"]
