@@ -4,6 +4,9 @@ extends "ExtendedEditorPlugin.gd"
 const Generator = preload("uid://bjxkwdwy770bi")
 var generator: Generator
 
+func _init() -> void:
+	add_plugin_translations_from_directory("res://addons/ActionIcon/Generator/Translations")
+
 func _enter_tree() -> void:
 	generator = preload("uid://dymwlqo6l32a5").instantiate()
 	add_child(generator)

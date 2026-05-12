@@ -1,0 +1,55 @@
+# LANGUAGE translation for  for the following files:
+# res://addons/ActionIcon/Generator/Generator.gd
+# res://addons/ActionIcon/Generator/Generator.tscn
+# res://addons/ActionIcon/plugin.gd
+#
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8-bit\n"
+
+#: addons/ActionIcon/Generator/Generator.gd:132
+msgid "Default joypad model must be included."
+msgstr ""
+
+#: addons/ActionIcon/Generator/Generator.gd:180
+msgid "Included models: %s"
+msgstr ""
+
+#: addons/ActionIcon/Generator/Generator.tscn
+msgid "Generate Icon Set"
+msgstr ""
+
+#: addons/ActionIcon/Generator/Generator.tscn
+msgid "Generate"
+msgstr ""
+
+#: addons/ActionIcon/Generator/Generator.tscn
+msgid "Click 🔍 button to preview a set."
+msgstr ""
+
+#: addons/ActionIcon/Generator/Generator.tscn
+msgid "Select icon sets to include"
+msgstr ""
+
+#: addons/ActionIcon/Generator/Generator.tscn
+msgid "Keyboard Set"
+msgstr ""
+
+#: addons/ActionIcon/Generator/Generator.tscn
+msgid "Mouse Set"
+msgstr ""
+
+#: addons/ActionIcon/Generator/Generator.tscn
+msgid "Joypad Sets"
+msgstr ""
+
+#: addons/ActionIcon/plugin.gd:11
+#: addons/ActionIcon/plugin.gd:12
+msgid "ActionIcon: Generate Icon Set"
+msgstr ""
