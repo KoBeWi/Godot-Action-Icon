@@ -2,7 +2,7 @@
 
 Action Icon is a TextureRect-based custom GUI node that you can put on a scene and it will display the associated action. Just activate the plugin and add ActionIcon to your scene.
 
-![](Media/Screenshot1.png)
+![](Media/ScreenshotSmall.png)
 
 ## Usage
 
@@ -48,7 +48,7 @@ The dialog allows you to customize what icons are included in the set. An icon s
 
 When you click Generate, the generator will create a full set of icons consisting of multiple spritesheets, and put it in the directory specified by the project setting mentioned before. A corresponding mapping file (with `.dat` extension), which maps keycodes/button IDs to an index in the spritesheet, is created for each set. If an input event can't match any mapped ID, it will display a dummy image.
 
-![](Addons/ActionIcon/Error.png)
+![](addons/ActionIcon/Error.png)
 
 > [!NOTE]
 > Generating an icon set only _creates_ files. If your tried different icons and your folder has leftovers, you'll have to delete them manually. They have no effect on ActionIcon, but you will have unused images in your project.
