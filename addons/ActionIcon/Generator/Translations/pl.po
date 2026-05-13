@@ -66,3 +66,11 @@ msgstr "Zestawy kontrolerów"
 #: addons/ActionIcon/plugin.gd:14 addons/ActionIcon/plugin.gd:15
 msgid "ActionIcon: Generate Icon Set"
 msgstr "ActionIcon: Generuj zestaw ikon"
+
+#: addons/ActionIcon/plugin.gd:27
+msgid "Refresh Icon"
+msgstr "Odśwież ikonę"
+
+#: addons/ActionIcon/plugin.gd:28
+msgid "Reload Data"
+msgstr "Przeładuj dane"

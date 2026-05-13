@@ -50,10 +50,16 @@ The dialog allows you to customize what icons are included in the set. An icon s
 
 ![](Media/ReadmePreview.webp)
 
-When you click Generate, the generator will create a full set of icons consisting of multiple spritesheets, and put it in the directory specified by the project setting mentioned before.
+When you click Generate, the generator will create a full set of icons consisting of multiple spritesheets, and put it in the directory specified by the project setting mentioned before. A corresponding mapping file (with `.dat` extension), which maps keycodes/button IDs to an index in the spritesheet, is created for each set. If an input event can't match any mapped ID, it will display a dummy image.
+
+![](Addons/ActionIcon/Error.png)
 
 > [!NOTE]
 > Generating an icon set only _creates_ files. If your tried different icons and your folder has leftovers, you'll have to delete them manually. They have no effect on ActionIcon, but you will have unused images in your project.
+
+The generated set will not immediately display in the editor. You need to press Reload Data buton in the inspector of ActionIcon to reload all icon data.
+
+![](Media/ReadmeReloadButton.webp)
 
 ### Creating Custom Sets
 
@@ -117,13 +123,100 @@ The keys of the dictionary need to be keycode names (you can refer to `KEY_*` co
 
 #### Mouse Blueprints
 
+Keyboard blueprints are generated from 2 mor more layers of images. The config consists of:
+- `base_image`: The image that shows in every icon as a background (a mouse with no highlights).
 
+There are 2 sections: `buttons` and `wheel`. Button section maps mouse buttons to specific images.
+```ini
+[buttons]
+left = "Left.png"
+right = "Right.png"
+middle = "Middle.png"
+```
+The key is name of the button. The value is name of the image in the set's directory that will be displayed over the base image. The following buttons are supported: `left`, `right`, `middle`, `extra1`, `extra2`.
+
+The wheel section maps mouse wheel actions.
+```ini
+[wheel]
+up = "WheelUp.png"
+down = "WheelDown.png"
+right = "WheelRight.png"
+left = "WheelLeft.png"
+```
+They are displayed as a second image over the middle button's image.
 
 #### Joypad Blueprints
 
+Joypad blueprints mostly consist from since images, since every joypad button has unique design. The config consists of:
+- `models`: An array of joypad models to match this set. The model is obtained via `Input.get_joy_name()` and whatever is returned is used to display the best-matched model.
+
+There ara again 2 sections: `buttons` and `directions`. The buttons section lists all non-directional joypad buttons, including triggers (which internally are axes).
+```ini
+[buttons]
+A = "A.png"
+B = "B.png"
+X = "X.png"
+Y = "Y.png"
+```
+The key is name of the button, based on Godot's `JOY_BUTTON_*` constants. The value is name of the image in the set's directory. The following buttons are supported: `A`, `B`, `X`, `Y`, `L1`, `L2`, `L3`, `R1`, `R2`, `R3`, `Back`, `Start`, `Guide`, `Misc1`-`Misc6`, `Paddle1`-`Paddle4`, `Touchpad`. L1 and R1 are shoulder buttons, L2 and R2 are triggers, L3 and R3 are stick buttons.
+
+Directions are mapped to d-pad and stick axes.
+```ini
+[directions]
+DPad = { "base": "DPad.png", "direction": "DPadDirection.png" }
+LeftStick = { "base": "LeftStick.png", "direction": "StickDirection.png" }
+RightStick = { "base": "RightStick.png", "direction": "StickDirection.png" }
+```
+The key is the name of the direction, the value is a dictionary that should include `base` image and `direction` image. The direction image is layered on top of the base image and rotated in four directions to create an icon for each direction. Note that the direction image must be facing to the right.
+
 #### Custom Icons
 
+Aside from the default icons that map to Godot's various input constants, you can define custom icons mapped to a string name. To do so, add a `[custom]` section to your mapping file. The structure is the same for each device.
+```ini
+[custom]
+LeftStick = { "base": "LeftStick.png" }
+```
+The above example creates an icon named "LeftStick" that displays a non-directional image of a joypad stick. Custom icons can be displayed using custom actions (see below).
+
+The key is the name of the icon (which will be used to find it), the value is a dictionary that defines the icon. The supported fields are:
+- `base`: The base texture of the icon. It's stretched to the icon's size (if it's different) and can't be transformed.
+- `text`: Adds a text to the icon, like for keyboard keys. The text can be further customized, using the same format as keyboard mapping:
+    - `text_offset`: Offset of the string in pixels (it's centered by default).
+    - `font`: Font of the text. Note that custom icons defined in keyboard set will not use the default font settings. You'll need to always provide them. If no font customization is provided, the icon will be created with the default theme.
+    - `font_color`: Color of the text.
+    - `font_size`: Size of the text.
+- `overlay`: A texture displayed on top. An icon can use any number of the overlays; any key starting with "overlay" will be considered one (e.g. `overlay1`, `overlay2`, `overlayXD` etc.). They have to be unique and are layered in the order they are defined (with the last one displayed on top). The value for overlay can be either String, which makes a plain image, or a Dictionary, which requires 2 keys:
+    `image`: The image file.
+    `rotation`: The rotation of the image. `0` is facing right, `1` is `PI / 2`, `3` is `PI` and `4` is `3/4 PI`, so it's in 90 degree increments.
+
 ### Custom Actions
+
+Custom actions are actions that don't exist in the InputMap. They are mostly intended for actions composed of multiple other actions, e.g. "movement" encompassing each directional input, or "vertical_wheel" being a mouse wheel up or down action.
+
+Custom actions are created via `CustomActions.gd` script located in the icon set directory. The default icon set also comes with such script, which defines a "move" action, which can display a WSAD compound icon.
+
+The script has to extend `ActionIconCustomActions` class and have `@tool` annotation. The basic workflow is:
+- Override the `_initialize()` method.
+- In that method, call `register_action("custom_action", action_callback)`.
+- Define an `action_callback` method. It takes 2 parameters: `action_icon: ActionIcon` and `device: ActionIcon.Device`, and returns `Texture2D`.
+- Add an ActionIcon node, set `action_name` to `custom_action`.
+- The icon tries to display the custom action, the `action_callback` is called, returning the texture, which is then displayed.
+
+For the callback part, `ActionIcon` class offers a `get_icon()` method, which takes `icon_id` and device type. You can use it to fetch any icon in the set associated with the device. E.g. `get_icon(MOUSE_BUTTON_LEFT, ActionIcon.Device.MOUSE)` will fetch the icon for the left mouse button (if it exists). You can also use the name of a custom icon as `icon_id`, to display previously defined custom icons. You can of course return any texture, including an arbitrary loaded image from somewhere in your project.
+
+#### Dynamic Icons
+
+The custom actions script also offers a way to prepare dynamic icons, i.e. icons that depend on currently defined inputs and can't be a prepared image. For example the aforementioned "move" action, it can be WSAD, it can be arrows, or any four key combination the player will set in the options.
+
+![](Media/ReadmeWSAD.webp)
+
+To create dynamic icons, override the `_create_icon_cache()` method. It's called at the beginning and after calling `reload_custom_actions()` static method in ActionIcon. The basic workflow is:
+- Call `prepare_icon_bake()`, which returns a SubView node.
+- Add any images you want to the viewport.
+- Call `bake_icon()` and assign the result to some variable.
+- In custom action callback, return the resulting texture.
+
+The viewport has the same size as base icon size of ActionIcon. The dynamic icon is composed of a snapshot of whatever displays in the viewport upon callig `bake_icon()`. The advantage of this helper method is that it's fully synchronous. While the icon will show its content in the next frame, you can use it immediately without awaiting.
 
 ### Exporting
 

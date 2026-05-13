@@ -21,3 +21,8 @@ func _exit_tree() -> void:
 	generator.queue_free()
 	remove_tool_menu_item("ActionIcon: Generate Icon Set")
 	EditorInterface.get_command_palette().remove_command("action_icon/generate_icon_set")
+
+func noop():
+	# For translation template.
+	tr("Refresh Icon")
+	tr("Reload Data")

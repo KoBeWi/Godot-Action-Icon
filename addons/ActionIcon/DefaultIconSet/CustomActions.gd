@@ -1,5 +1,5 @@
 @tool
-extends "res://addons/ActionIcon/BaseCustomActions.gd"
+extends ActionIconCustomActions
 
 var move_icon_cache: Texture2D
 

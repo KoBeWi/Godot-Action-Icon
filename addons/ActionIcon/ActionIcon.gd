@@ -412,8 +412,11 @@ func _validate_property(property: Dictionary) -> void:
 	if pname == "texture":
 		property["usage"] = PROPERTY_USAGE_NONE
 	elif fit_mode != FitMode.CUSTOM and (pname == "expand_mode" or pname == "stretch_mode"):
-		property.usage = PROPERTY_USAGE_NONE
-	elif Engine.is_editor_hint() and pname == "joypad_model":
+		property["usage"] = PROPERTY_USAGE_NONE
+	elif not Engine.is_editor_hint():
+		return
+	
+	if pname == "joypad_model":
 		var models: PackedStringArray
 		models.append("Auto:-1")
 		
@@ -428,8 +431,14 @@ func _validate_property(property: Dictionary) -> void:
 			
 			i += 1
 		
-		property.hint = PROPERTY_HINT_ENUM
-		property.hint_string = ",".join(models)
+		property["hint"] = PROPERTY_HINT_ENUM
+		property["hint_string"] = ",".join(models)
+	elif pname == "editor_refresh_icon" or pname == "editor_reload_data":
+		var domain := TranslationServer.get_or_add_domain(&"godot.editor")
+		
+		var parts: PackedStringArray = property["hint_string"].split(",")
+		parts[0] = String(domain.translate(parts[0]))
+		property["hint_string"] = ",".join(parts)
 
 func _queue_update_process_input():
 	Engine.get_main_loop().call_group_flags(SceneTree.GROUP_CALL_DEFERRED | SceneTree.GROUP_CALL_UNIQUE, _GROUP_NAME, _update_process_input.get_method())

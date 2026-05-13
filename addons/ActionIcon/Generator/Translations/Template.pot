@@ -61,3 +61,11 @@ msgstr ""
 #: addons/ActionIcon/plugin.gd:15
 msgid "ActionIcon: Generate Icon Set"
 msgstr ""
+
+#: addons/ActionIcon/plugin.gd:27
+msgid "Refresh Icon"
+msgstr ""
+
+#: addons/ActionIcon/plugin.gd:28
+msgid "Reload Data"
+msgstr ""
