@@ -11,7 +11,7 @@ The node has a couple of display modes to configure:
 - Action Name: The name of the action from project's Input Map, or registered un CustomActions script (see below).
 - Joypad Mode: Whether the action should display keyboard key or joypad button. If set to "Adaptive", the icon will automatically change when it detects keyboard or joypad input. Only relevant to actions that have both assigned.
 
-![](Media/ReadmeActions.gif)
+![](Media/ReadmeActions.webp)
 
 - Joypad Model: model of the joypad to display. If set to "Auto", the script will try to auto-detect the controller based on the device id of joypad events and joy name returned by Godot. "Any Device" option will default to the first joypad. Fallbacks to the default joypad in the icon set if detection fails. All auto-model icons are refreshed when new device is connected, so icons will auto-update if joypad changes.
 - Favor Mouse: if an action has a keyboard and mouse button configured, `favor_mouse` makes it display the mouse button.
@@ -19,10 +19,6 @@ The node has a couple of display modes to configure:
 - Fit Mode: Custom = The icon will use whatever size you set. Match Width = The icon minimum width will match its height. Useful e.g. inside HBoxContainer. Match Height = Same, but matches height to width. This property internally uses the built-in functionality of TextureRect. You can set it to Custom to set `expand_mode` and `stretch_mode` yourself.
 
 ![](Media/ReadmeSize.gif)
-
-The icon shows properly in the editor too.
-
-![](Media/ReadmeEditor.gif)
 
 If you change your input mappings in-game, you can use `ActionIcon.refresh_all()` to refresh all visible icons to match the newly assigned input, or `action_icon.refresh()` to refresh the icon. In editor, you can refresh the icon using Refresh Icon inspector button.
 
@@ -198,7 +194,7 @@ Custom actions are created via `CustomActions.gd` script located in the icon set
 The script has to extend `ActionIconCustomActions` class and have `@tool` annotation. The basic workflow is:
 - Override the `_initialize()` method.
 - In that method, call `register_action("custom_action", action_callback)`.
-- Define an `action_callback` method. It takes 2 parameters: `action_icon: ActionIcon` and `device: ActionIcon.Device`, and returns `Texture2D`.
+- Define an `action_callback` method. It takes 2 parameters: `action_icon: ActionIcon` and `device: ActionIcon.Device`, and returns `Texture2D`. The `device` is the device the ActionIcon is supposed to display, based on its properties.
 - Add an ActionIcon node, set `action_name` to `custom_action`.
 - The icon tries to display the custom action, the `action_callback` is called, returning the texture, which is then displayed.
 

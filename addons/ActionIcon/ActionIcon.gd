@@ -131,7 +131,7 @@ static func _static_init() -> void:
 
 ## Call it once to load the icon data, but only if [code]addons/action_icon/automatically_load_icons[/code] project setting is disabled. Needs to be called before any [ActionIcon] is created.
 static func initialize_data():
-	var icon_set_path: String = ProjectSettings.get_setting(_ACTION_SET_SETTING)
+	var icon_set_path: String = ProjectSettings.get_setting(_ACTION_SET_SETTING, "res://ActionIconSet")
 	if not DirAccess.dir_exists_absolute(icon_set_path):
 		icon_set_path = "res://addons/ActionIcon/DefaultIconSet"
 	
@@ -273,7 +273,10 @@ func _refresh():
 	var events := action_get_events(action_name)
 	if events.is_empty():
 		texture = _DEFAULT_TEXTURE
-		push_warning("Action \"%s\" has no events." % action_name)
+		if ProjectSettings.has_setting("input/" + action_name):
+			push_warning("Action \"%s\" has no events." % action_name)
+		else:
+			push_warning("Action \"%s\" not found in InputMap nor custom actions." % action_name)
 		return
 	
 	var keyboard := -1
