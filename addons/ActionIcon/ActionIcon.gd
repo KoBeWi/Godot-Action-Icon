@@ -126,7 +126,7 @@ var _cached_joypad: IconSet
 
 static func _static_init() -> void:
 	_use_joypad = not Input.get_connected_joypads().is_empty()
-	if ProjectSettings.get_setting(_AUTO_LOAD_SETTING, true):
+	if Engine.is_editor_hint() or ProjectSettings.get_setting(_AUTO_LOAD_SETTING, true):
 		initialize_data()
 
 ## Call it once to load the icon data, but only if [code]addons/action_icon/automatically_load_icons[/code] project setting is disabled. Needs to be called before any [ActionIcon] is created.
