@@ -345,7 +345,7 @@ func _get_joypad_set(device: int) -> IconSet:
 		return _cached_joypad
 	
 	var data: IconSet
-	var device_name := Input.get_joy_name(maxi(device, 0))
+	var device_name := Input.get_joy_name(maxi(device, 0)).trim_suffix("Controller").strip_edges()
 	if device_name in _joypad_sets:
 		data = _joypad_sets[device_name]
 	else:
