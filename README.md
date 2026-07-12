@@ -218,6 +218,8 @@ The viewport has the same size as base icon size of ActionIcon. The dynamic icon
 
 When exporting project, the whole ActionIcon/Generator folder can be excluded. The DefaultIconSet can be excluded from export if you use a custom set. Other files are required for the addon to function.
 
+You must include either `res://addons/ActionIcon/DefaultIconSet/*` (for default set) or `res://ActionIconSet/*` (for custom set) under `Filters to export non-resource files/folders` to ensure the configuration files are exported correctly.
+
 ## Localization
 
 The addon supports translations and will automatically use the editor's language, if available. Currently only Polish translation is available. To make a new translation use the Template.pot file found in the addon's folder and feel free to open a pull request.
