@@ -3,6 +3,8 @@ extends "ExtendedEditorPlugin.gd"
 
 const Generator = preload("uid://bjxkwdwy770bi")
 var generator: Generator
+const ExportOverride = preload("uid://ca2mr75qpc6t1")
+var export_override: ExportOverride
 
 func _init() -> void:
 	add_plugin_translations_from_directory("res://addons/ActionIcon/Generator/Translations")
@@ -14,6 +16,9 @@ func _enter_tree() -> void:
 	add_tool_menu_item(tr_extract.tr("ActionIcon: Generate Icon Set"), generator.show)
 	EditorInterface.get_command_palette().add_command(tr_extract.tr("ActionIcon: Generate Icon Set"), "action_icon/generate_icon_set", generator.show)
 	
+	export_override = ExportOverride.new()
+	add_export_plugin(export_override)
+	
 	define_project_setting(ActionIcon._ACTION_SET_SETTING, "res://ActionIconSet", PROPERTY_HINT_DIR)
 	define_project_setting(ActionIcon._AUTO_LOAD_SETTING, true)
 
@@ -21,6 +26,7 @@ func _exit_tree() -> void:
 	generator.queue_free()
 	remove_tool_menu_item("ActionIcon: Generate Icon Set")
 	EditorInterface.get_command_palette().remove_command("action_icon/generate_icon_set")
+	remove_export_plugin(export_override)
 
 func noop():
 	# For translation template.
