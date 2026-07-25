@@ -3,6 +3,8 @@ extends EditorExportPlugin
 var _icon_set_path: String
 var _using_custom_set: bool
 
+const GENERATOR_PATH = "res://addons/ActionIcon/Generator"
+const DEFAULT_ICON_SET_PATH = "res://addons/ActionIcon/DefaultIconSet"
 
 func _get_name() -> String:
 	return "ActionIcon Export Override"
@@ -11,7 +13,7 @@ func _get_name() -> String:
 ## Make sure to export "Config.cfg" and "*.dat" files, regardless of export settings.
 func _export_begin(_features: PackedStringArray, _is_debug: bool, _path: String, _flags: int) -> void:
 	_icon_set_path = ActionIcon._get_icon_set_path()
-	_using_custom_set = (_icon_set_path != "res://addons/ActionIcon/DefaultIconSet")
+	_using_custom_set = (_icon_set_path != DEFAULT_ICON_SET_PATH)
 	
 	var cfg := ConfigFile.new()
 	cfg.load(_icon_set_path.path_join("Config.cfg"))
@@ -37,9 +39,7 @@ func _export_begin(_features: PackedStringArray, _is_debug: bool, _path: String,
 
 ## Exclude "Generator" and (if applicable) "DefaultIconSet" directories
 func _export_file(path: String, _type: String, _features: PackedStringArray) -> void:
-	# no safeguards on get_stack(), we know we're the Editor build
-	var plugin_dir: String = get_stack()[0]["source"].get_base_dir()
-	if path.begins_with(plugin_dir.path_join("Generator")):
+	if path.begins_with(GENERATOR_PATH):
 		skip()
-	if  _using_custom_set and path.begins_with(plugin_dir.path_join("DefaultIconSet")):
+	if  _using_custom_set and path.begins_with(DEFAULT_ICON_SET_PATH):
 		skip()
