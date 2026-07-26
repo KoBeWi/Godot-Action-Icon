@@ -24,7 +24,7 @@
 303: 24,
 500: 5,
 600: 8,
-"$models": PackedStringArray("Xbox", "XInput Gamepad", "XInput Controller"),
+"$models": PackedStringArray("Xbox", "XInput Gamepad", "XInput Controller", "Xbox Adaptive Controller", "Xbox One Controller", "Xbox One S Controller", "Microsoft Xbox One", "Xbox Elite Controller", "Xbox One Elite 2 Controller", "Xbox Elite Controller Series 2", "Xbox One Elite Series 2", "Microsoft Xbox One Elite", "Microsoft Xbox One Elite 2", "Xbox Series Controller", "Xbox Series X Controller", "Xbox Wireless Controller", "Microsoft Xbox Series Controller", "*Xbox One*", "*Xbox Series*"),
 "$type": 2,
 "LeftStick": 25,
 "RightStick": 26
