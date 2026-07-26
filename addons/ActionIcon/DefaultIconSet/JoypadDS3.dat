@@ -23,7 +23,7 @@
 303: 23,
 500: 5,
 600: 8,
-"$models": PackedStringArray("PS3"),
+"$models": PackedStringArray("PS3", "PS1 Controller", "PS2 Controller", "PS3 Controller", "PlayStation Adapter", "Sony PlayStation Adapter", "Sony PlayStation Classic Controller", "Sony PlayStation Controller", "Sony DualShock 2", "Sony DualShock 3", "*PlayStation 2*", "*PlayStation 3*", "*PS1*", "*PS2*", "*PS3*", "*DualShock 2*", "*DualShock 3*"),
 "$type": 2,
 "LeftStick": 24,
 "RightStick": 25

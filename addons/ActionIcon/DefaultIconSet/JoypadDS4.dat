@@ -24,7 +24,7 @@
 303: 24,
 500: 5,
 600: 8,
-"$models": PackedStringArray("PS4"),
+"$models": PackedStringArray("PS4", "PS4 Controller", "Sony DualShock 4", "Sony DualShock 4 Adapter", "Sony DualShock 4 V2", "*PlayStation 4*", "*PS4*", "*DualShock 4*"),
 "$type": 2,
 "LeftStick": 25,
 "RightStick": 26

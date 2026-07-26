@@ -23,7 +23,7 @@
 303: 23,
 500: 5,
 600: 8,
-"$models": PackedStringArray("Xbox 360"),
+"$models": PackedStringArray("Xbox 360", "Xbox 360 Controller", "Xbox 360 Fightpad", "Xbox 360 Receiver", "Microsoft Xbox 360", "*Xbox 360*", "*Xbox Controller*"),
 "$type": 2,
 "LeftStick": 24,
 "RightStick": 25
