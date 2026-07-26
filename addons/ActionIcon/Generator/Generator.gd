@@ -10,7 +10,7 @@ extends Node
 
 @onready var viewport: SubViewport = %Viewport
 @onready var viewport_grid: GridContainer = %ViewportGrid
-@onready var model_list: Label = %ModelList
+@onready var model_list: RichTextLabel = %ModelList
 
 var dialog: ConfirmationDialog
 var blueprint_list: Array[Blueprint]

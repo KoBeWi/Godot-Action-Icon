@@ -118,6 +118,7 @@ static var _use_joypad: bool
 static var _keyboard_set: IconSet
 static var _mouse_set: IconSet
 static var _joypad_sets: Dictionary[String, IconSet]
+static var _joypad_sets_match: Dictionary[String, IconSet]
 static var _custom_actions: ActionIconCustomActions
 
 var _pending_refresh: bool = true
@@ -163,8 +164,16 @@ static func initialize_data():
 				_mouse_set = set_object
 			Device.JOYPAD:
 				for model in data["$models"]:
-					if not model in _joypad_sets:
-						_joypad_sets[model] = set_object
+					# detect model name syntax, currently supports *matchn
+					# could support /RegEx/ and ~FuzzySearch if required
+					if model.contains("*") or model.contains("?"):
+						# use String.matchn()
+						if not model in _joypad_sets_match:
+							_joypad_sets_match[model] = set_object
+					else:
+						# exact match, case sensitive
+						if not model in _joypad_sets:
+							_joypad_sets[model] = set_object
 				
 				if icon_set == _default_joypad:
 					_default_joypad = data["$models"][0]
@@ -347,10 +356,19 @@ func _get_joypad_set(device: int) -> IconSet:
 	var data: IconSet
 	var device_name := Input.get_joy_name(maxi(device, 0))
 	if device_name in _joypad_sets:
+		# Exact matches always take precedence over other methods
 		data = _joypad_sets[device_name]
 	else:
-		push_warning("Joypad model \"%s\" not found in registered icon sets. Using default set." % device_name)
-		data = _joypad_sets[_default_joypad]
+		for glob in _joypad_sets_match:
+			if device_name.matchn(glob):
+				if OS.is_debug_build():
+					push_warning("Joypad model \"%s\" not found in registered icon sets. Using closest match \"%s\"." % [device_name, glob])
+				data = _joypad_sets_match[glob]
+				break
+		if not data:
+			if OS.is_debug_build():
+				push_warning("Joypad model \"%s\" not found in registered icon sets. Using default set." % device_name)
+			data = _joypad_sets[_default_joypad]
 	
 	_cached_joypad = data
 	return data
