@@ -41,5 +41,5 @@ func _export_begin(_features: PackedStringArray, _is_debug: bool, _path: String,
 func _export_file(path: String, _type: String, _features: PackedStringArray) -> void:
 	if path.begins_with(GENERATOR_PATH):
 		skip()
-	if  _using_custom_set and path.begins_with(DEFAULT_ICON_SET_PATH):
+	elif  _using_custom_set and path.begins_with(DEFAULT_ICON_SET_PATH):
 		skip()

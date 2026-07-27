@@ -214,6 +214,10 @@ To create dynamic icons, override the `_create_icon_cache()` method. It's called
 
 The viewport has the same size as base icon size of ActionIcon. The dynamic icon is composed of a snapshot of whatever displays in the viewport upon callig `bake_icon()`. The advantage of this helper method is that it's fully synchronous. While the icon will show its content in the next frame, you can use it immediately without awaiting.
 
+### Exporting
+
+When exporting the project, ActionIcon will automatically include all relevant icon set files (.cfg and .dat, so no need to add include filters), and exclude all generator files.
+
 ## Localization
 
 The addon supports translations and will automatically use the editor's language, if available. Currently only Polish translation is available. To make a new translation use the Template.pot file found in the addon's folder and feel free to open a pull request.
