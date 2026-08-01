@@ -134,9 +134,7 @@ static func _static_init() -> void:
 
 ## Call it once to load the icon data, but only if [code]addons/action_icon/automatically_load_icons[/code] project setting is disabled. Needs to be called before any [ActionIcon] is created.
 static func initialize_data():
-	var icon_set_path: String = ProjectSettings.get_setting(_ACTION_SET_SETTING, "res://ActionIconSet")
-	if not DirAccess.dir_exists_absolute(icon_set_path):
-		icon_set_path = "res://addons/ActionIcon/DefaultIconSet"
+	var icon_set_path: String = _get_icon_set_path()
 	
 	var cfg := ConfigFile.new()
 	cfg.load(icon_set_path.path_join("Config.cfg"))
@@ -476,6 +474,12 @@ static func _get_set_icon(icon_set: IconSet, idx: int) -> Texture2D:
 	tex.region.size = _base_size
 	tex.region.position = Vector2(idx % _SHEET_COLUMNS, idx / _SHEET_COLUMNS) * _base_size
 	return tex
+
+static func _get_icon_set_path() -> String:
+	var icon_set_path: String = ProjectSettings.get_setting(ActionIcon._ACTION_SET_SETTING, "res://ActionIconSet")
+	if not FileAccess.file_exists(icon_set_path.path_join("Config.cfg")):
+		return "res://addons/ActionIcon/DefaultIconSet"
+	return icon_set_path
 
 # Input change will refresh every visible ActionIcon, causing dozens of warnings on Alt+Tab
 # Let's warn only once per game launch instead
