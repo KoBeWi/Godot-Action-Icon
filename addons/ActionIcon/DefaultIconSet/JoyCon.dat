@@ -25,7 +25,7 @@
 303: 25,
 500: 5,
 600: 8,
-"$models": PackedStringArray("Joy-Con", "Joy-Con (L)", "Joy-Con (R)", "Nintendo Switch Joy-Con (L)", "Nintendo Switch Joy-Con (R)", "Nintendo Switch Joy-Con (L/R)", "Nintendo Switch Left Joy-Con", "Nintendo Switch Right Joy-Con", "Nintendo Switch Combined Joy-Cons", "*Joy?Con*"),
+"$models": PackedStringArray("Joy-Con", "Joy-Con (L)", "Joy-Con (R)", "Nintendo Switch Joy-Con (L)", "Nintendo Switch Joy-Con (R)", "Nintendo Switch Joy-Con (L/R)", "Nintendo Switch Left Joy-Con", "Nintendo Switch Right Joy-Con", "Nintendo Switch Combined Joy-Cons", "*Joy?Con*", "Nintendo Switch Pro Controller", "Nintendo Switch 2 Pro Controller", "*Nintendo Switch*"),
 "$type": 2,
 "LeftStick": 26,
 "RightStick": 27
