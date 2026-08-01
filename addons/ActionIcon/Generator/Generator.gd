@@ -170,14 +170,22 @@ func try_update_blueprint(blueprint: Blueprint) -> bool:
 	return true
 
 func update_models():
-	var models: PackedStringArray
+	model_list.clear()
+	model_list.push_bold()
+	model_list.add_text(tr("Included models: "))
+	model_list.pop()
 	
 	for node in joypad_sets.get_children():
 		if node is CheckBox and node.button_pressed:
 			var blueprint: JoypadBlueprint = get_blueprint_by_name(node.text)
-			models.append_array(blueprint.models)
-	
-	model_list.text = tr("Included models: %s") % ", ".join(models)
+			
+			model_list.newline()
+			model_list.add_text("%s" % node.text)
+			model_list.push_font_size(12)
+			model_list.newline()
+			model_list.add_text(", ".join(blueprint.models))
+			model_list.newline()
+			model_list.pop()
 
 func create_element() -> Control:
 	var element: Control = preload("uid://dels8j71udktn").instantiate()
