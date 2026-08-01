@@ -219,7 +219,7 @@ The viewport has the same size as base icon size of ActionIcon. The dynamic icon
 
 ### Exporting
 
-When exporting project, the whole ActionIcon/Generator folder can be excluded. The DefaultIconSet can be excluded from export if you use a custom set. Other files are required for the addon to function.
+When exporting the project, ActionIcon will automatically include all relevant icon set files (.cfg and .dat, so no need to add include filters), and exclude all generator files.
 
 ## Localization
 
