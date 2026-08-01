@@ -121,6 +121,8 @@ static var _joypad_sets: Dictionary[String, IconSet]
 static var _joypad_sets_match: Dictionary[String, IconSet]
 static var _custom_actions: ActionIconCustomActions
 
+static var message_log := PackedStringArray()
+
 var _pending_refresh: bool = true
 var _fit_initialized: bool
 var _cached_joypad: IconSet
@@ -269,7 +271,7 @@ func _refresh():
 		
 		var action_texture := _custom_actions._get_texture(action_name, self, device)
 		if not action_texture:
-			push_warning("Custom action \"%s\" has empty texture." % action_name)
+			_warn_once("Custom action \"%s\" has empty texture." % action_name)
 			texture = _DEFAULT_TEXTURE
 		else:
 			texture = action_texture
@@ -283,9 +285,9 @@ func _refresh():
 	if events.is_empty():
 		texture = _DEFAULT_TEXTURE
 		if ProjectSettings.has_setting("input/" + action_name):
-			push_warning("Action \"%s\" has no events." % action_name)
+			_warn_once("Action \"%s\" has no events." % action_name)
 		else:
-			push_warning("Action \"%s\" not found in InputMap nor custom actions." % action_name)
+			_warn_once("Action \"%s\" not found in InputMap nor custom actions." % action_name)
 		return
 	
 	var keyboard := -1
@@ -322,7 +324,7 @@ func _refresh():
 			texture = _get_keyboard(keyboard)
 	
 	if not texture:
-		push_warning("No icon found for action \"%s\"." % action_name)
+		_warn_once("No icon found for action \"%s\"." % action_name)
 		texture = _DEFAULT_TEXTURE
 
 func _get_keyboard(key: int) -> Texture2D:
@@ -361,13 +363,10 @@ func _get_joypad_set(device: int) -> IconSet:
 	else:
 		for glob in _joypad_sets_match:
 			if device_name.matchn(glob):
-				if OS.is_debug_build():
-					push_warning("Joypad model \"%s\" not found in registered icon sets. Using closest match \"%s\"." % [device_name, glob])
 				data = _joypad_sets_match[glob]
 				break
 		if not data:
-			if OS.is_debug_build():
-				push_warning("Joypad model \"%s\" not found in registered icon sets. Using default set." % device_name)
+			_warn_once("Joypad model \"%s\" not found in registered icon sets. Using default set." % device_name)
 			data = _joypad_sets[_default_joypad]
 	
 	_cached_joypad = data
@@ -477,6 +476,15 @@ static func _get_set_icon(icon_set: IconSet, idx: int) -> Texture2D:
 	tex.region.size = _base_size
 	tex.region.position = Vector2(idx % _SHEET_COLUMNS, idx / _SHEET_COLUMNS) * _base_size
 	return tex
+
+# Input change will refresh every visible ActionIcon, causing dozens of warnings on Alt+Tab
+# Let's warn only once per game launch instead
+static func _warn_once(msg: String) -> void:
+	if not Engine.is_editor_hint():
+		if msg in message_log:
+			return
+		message_log.append(msg)
+	push_warning(msg)
 
 class IconSet:
 	var texture: Texture2D
