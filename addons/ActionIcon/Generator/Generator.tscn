@@ -51,14 +51,13 @@ oversampling_override = 1.0
 title = "Generate Icon Set"
 position = Vector2i(0, 24)
 size = Vector2i(1022, 600)
-visible = true
 ok_button_text = "Generate"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Dialog" unique_id=817055088]
-offset_left = 9.0
-offset_top = 9.0
-offset_right = 1013.0
-offset_bottom = 549.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 1014.0
+offset_bottom = 551.0
 
 [node name="PanelContainer" type="PanelContainer" parent="Dialog/VBoxContainer" unique_id=1455163630]
 layout_mode = 2
@@ -152,9 +151,10 @@ layout_mode = 2
 size_flags_horizontal = 4
 columns = 2
 
-[node name="ModelList" type="Label" parent="Dialog/VBoxContainer/ScrollContainer/VBoxContainer" unique_id=319898197]
+[node name="ModelList" type="RichTextLabel" parent="Dialog/VBoxContainer/ScrollContainer/VBoxContainer" unique_id=1659831875]
 unique_name_in_owner = true
 layout_mode = 2
+fit_content = true
 horizontal_alignment = 1
 
 [node name="Viewport" type="SubViewport" parent="." unique_id=540985589]

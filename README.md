@@ -146,6 +146,9 @@ They are displayed as a second image over the middle button's image.
 Joypad blueprints mostly consist from since images, since every joypad button has unique design. The config consists of:
 - `models`: An array of joypad models to match this set. The model is obtained via `Input.get_joy_name()` and whatever is returned is used to display the best-matched model.
 
+> [!NOTE]
+> You can use `String.matchn()` AKA 'glob' syntax to match a large number of similar models such as "\*Xbox 360\*", but an exact match will take precedence over a glob.
+
 There ara again 2 sections: `buttons` and `directions`. The buttons section lists all non-directional joypad buttons, including triggers (which internally are axes).
 ```ini
 [buttons]

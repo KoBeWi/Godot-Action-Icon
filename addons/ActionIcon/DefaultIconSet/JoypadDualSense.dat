@@ -25,7 +25,7 @@
 303: 25,
 500: 5,
 600: 8,
-"$models": PackedStringArray("DualSense"),
+"$models": PackedStringArray("DualSense", "PS5 Controller", "PS5 Access Controller", "PlayStation VR2 Sense Controller (L)", "PlayStation VR2 Sense Controller (R)", "*PlayStation 5*", "*PS5*"),
 "$type": 2,
 "LeftStick": 26,
 "RightStick": 27
