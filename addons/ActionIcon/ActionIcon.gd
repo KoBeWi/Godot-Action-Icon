@@ -164,14 +164,13 @@ static func initialize_data():
 				_mouse_set = set_object
 			Device.JOYPAD:
 				for model in data["$models"]:
-					# detect model name syntax, currently supports *matchn
-					# could support /RegEx/ and ~FuzzySearch if required
+					# Detect model name syntax, currently supports *matchn.
+					# Could support /RegEx/ and ~FuzzySearch if required.
 					if model.contains("*") or model.contains("?"):
-						# use String.matchn()
 						if not model in _joypad_sets_match:
 							_joypad_sets_match[model] = set_object
 					else:
-						# exact match, case sensitive
+						# Exact match, case sensitive.
 						if not model in _joypad_sets:
 							_joypad_sets[model] = set_object
 				
@@ -356,7 +355,7 @@ func _get_joypad_set(device: int) -> IconSet:
 	var data: IconSet
 	var device_name := Input.get_joy_name(maxi(device, 0))
 	if device_name in _joypad_sets:
-		# Exact matches always take precedence over other methods
+		# Exact matches always take precedence over other methods.
 		data = _joypad_sets[device_name]
 	else:
 		for glob in _joypad_sets_match:
@@ -481,8 +480,8 @@ static func _get_icon_set_path() -> String:
 		return "res://addons/ActionIcon/DefaultIconSet"
 	return icon_set_path
 
-# Input change will refresh every visible ActionIcon, causing dozens of warnings on Alt+Tab
-# Let's warn only once per game launch instead
+# Input change will refresh every visible ActionIcon, causing dozens of warnings on Alt+Tab.
+# Let's warn only once per game launch instead.
 static func _warn_once(msg: String) -> void:
 	if not Engine.is_editor_hint():
 		if msg in message_log:

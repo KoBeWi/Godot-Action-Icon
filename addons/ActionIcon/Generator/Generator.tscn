@@ -151,6 +151,12 @@ layout_mode = 2
 size_flags_horizontal = 4
 columns = 2
 
+[node name="Label4" type="Label" parent="Dialog/VBoxContainer/ScrollContainer/VBoxContainer" unique_id=1839176519]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Included Models"
+horizontal_alignment = 1
+
 [node name="ModelList" type="RichTextLabel" parent="Dialog/VBoxContainer/ScrollContainer/VBoxContainer" unique_id=1659831875]
 unique_name_in_owner = true
 layout_mode = 2

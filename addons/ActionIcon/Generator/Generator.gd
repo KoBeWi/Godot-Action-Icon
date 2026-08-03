@@ -171,15 +171,16 @@ func try_update_blueprint(blueprint: Blueprint) -> bool:
 
 func update_models():
 	model_list.clear()
-	model_list.push_bold()
-	model_list.add_text(tr("Included models: "))
-	model_list.pop()
 	
+	var first := true
 	for node in joypad_sets.get_children():
 		if node is CheckBox and node.button_pressed:
 			var blueprint: JoypadBlueprint = get_blueprint_by_name(node.text)
 			
-			model_list.newline()
+			if first:
+				first = false
+			else:
+				model_list.newline()
 			model_list.add_text("%s" % node.text)
 			model_list.push_font_size(12)
 			model_list.newline()
@@ -395,6 +396,13 @@ class KeyboardBlueprint extends Blueprint:
 			for mapping_name: String in mapping_data:
 				var mapping := Mapping.new()
 				mapping.key = OS.find_keycode_from_string(mapping_name)
+				
+				# Workaround for engine issue.
+				if mapping.key == KEY_NONE:
+					if mapping_name == "Windows" or mapping_name == "Command":
+						mapping.key = KEY_META
+					elif mapping_name == "Option":
+						mapping.key = KEY_ALT
 				
 				if mapping.key == KEY_NONE:
 					push_warning("Unrecognized keycode name: %s" % mapping_name)
