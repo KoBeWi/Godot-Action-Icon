@@ -98,18 +98,10 @@ enum FitMode {
 		notify_property_list_changed()
 
 ## Refreshes the displayed icon in the editor.
-@export_tool_button("Refresh Icon", "ReloadSmall") var editor_refresh_icon = func():
-	refresh()
+@export_tool_button("Refresh Icon", "ReloadSmall") var editor_refresh_icon = refresh
 
 ## Reloads all icon data and refreshes icons.
-@export_tool_button("Reload Data", "Close") var editor_reload_data = func():
-	_keyboard_set = null
-	_mouse_set = null
-	_joypad_sets.clear()
-	_custom_actions = null
-	
-	initialize_data()
-	refresh_all()
+@export_tool_button("Reload Data", "Close") var editor_reload_data = reload_data
 
 static var _base_size: Vector2
 static var _default_joypad: String
@@ -192,6 +184,17 @@ func refresh():
 	
 	_pending_refresh = true
 	_refresh.call_deferred()
+
+## Used for "Reload Data" button in editor
+func reload_data():
+	_keyboard_set = null
+	_mouse_set = null
+	_joypad_sets.clear()
+	_joypad_sets_match.clear()
+	_custom_actions = null
+	
+	initialize_data()
+	refresh_all()
 
 ## Returns an icon associated with the specified [param icon_id] and [param device]. The ID depends on the device, e.g. keyboard uses [code]KEY_*[/code] constants. Custom set icons are identified with a [String].
 ## [br][br][b]Note:[/b] Joypad axis values use hard-coded IDs, due to not having built-in constants. These are 503/502 for positive/negative left X, 501/500 for positive/negative left Y, 1005/1004 for positive/negative right X, 1003/1002 for positive/negative right Y.
